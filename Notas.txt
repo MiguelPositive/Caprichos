@@ -1,0 +1,32 @@
+METAS A LOGRAR:
+
+*VALIDACION DE USUARIO Y DE ROL DE USUARIO
+*APLICACION 100% RESPONSIVA
+*AGREGAR BARRAS DE BUSCA A CADA VISTA
+*CAMBIAR LA ESTRUCTURA DE COMO SE AGREGAN ARREGLOS
+*REALIZAR UN DISEÑO MODERNO Y LLAMATIVO
+
+
+19/12/2022
+
+Comence el proyecto
+
+23/12/2022
+
+He tenido complicaciones por no saber con exactitud como hacer un aplicacion responsiva.
+Ademas, se me ha presentado un error que me evita que pueda acceder a la aplicación desde
+el movil. (Ya lo solucione).
+
+Dejare el proyecto por ahora de lado y me enfocare en hacer webs renposivas para luego 
+volver con el proyecto.
+
+Me puse a investigar cual es la forma o las formas mas eficientes de hacer un diseño web
+estetico y responsivo.
+
+Me di de cuenta que el uso de media querys no es muy eficiente, usare bootstrap
+
+
+25/12/12
+
+Complete la vista de crudos, de modo que, el crud funcionará de forma web como
+movil y asu vez agregaue una barra de busqueda en tiempo real.

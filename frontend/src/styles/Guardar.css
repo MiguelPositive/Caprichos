@@ -1,0 +1,16 @@
+.boton-guardar {
+  transition: 0.5s ease all;
+  padding-top: 0.2rem;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.boton-guardar:hover {
+  transition: 0.5s;
+  transform: translateY(-5%);
+}

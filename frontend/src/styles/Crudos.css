@@ -1,0 +1,13 @@
+.modal-sinfocus:focus {
+  outline: none;
+}
+
+@media (max-width: 575px) {
+  .contenedor-agregar {
+    width: 10rem;
+  }
+
+  .contenedor-buscar {
+    width: 12rem;
+  }
+}
