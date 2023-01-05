@@ -6,6 +6,11 @@ const PizzasEsquema = mongoose.Schema({
     trim: false,
   },
 
+  precio: {
+    type: Number,
+    trim: false,
+  },
+
   ingredientes: {
     type: Array,
   },

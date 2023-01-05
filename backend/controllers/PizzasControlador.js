@@ -2,10 +2,11 @@ const { modeloPizzas } = require("../models/PizzasModelo.js");
 
 const AgregarPizza = async (req, res) => {
   try {
-    const { nombre, ingredientes } = req.body;
+    const { nombre, precio, ingredientes } = req.body;
 
     const nuevaPizza = await modeloPizzas({
       nombre,
+      precio,
       ingredientes,
     });
 
@@ -33,9 +34,12 @@ const ConsultarPizzas = async (req, res) => {
 
 const EditarPizza = async (req, res) => {
   try {
-    const { _id, nombre, ingredientes } = req.body;
+    const { _id, nombre, precio, ingredientes } = req.body;
 
-    await modeloPizzas.updateOne({ _id }, { $set: { nombre, ingredientes } });
+    await modeloPizzas.updateOne(
+      { _id },
+      { $set: { nombre, precio, ingredientes } }
+    );
 
     res.json({ mensaje: true });
   } catch (error) {

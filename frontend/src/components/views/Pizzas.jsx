@@ -59,6 +59,7 @@ const Pizzas = () => {
   const [idColapse, setIdColapse] = useState("");
   const [idPizza, setIdPizza] = useState("");
   const [nombrePizza, setNombrePizza] = useState("");
+  const [precioPizza, setPrecioPizza] = useState(0);
   const [ingredientesSeleccionados, setIngredientesSeleccionados] = useState(
     []
   );
@@ -85,8 +86,12 @@ const Pizzas = () => {
 
   //funciones de cambio
 
-  const handleChnageNombrePizza = (e) => {
+  const handleChangeNombrePizza = (e) => {
     setNombrePizza(e.target.value);
+  };
+
+  const handleChangePrecioPizza = (e) => {
+    setPrecioPizza(e.target.value);
   };
 
   const handleChangeSelector = (e) => {
@@ -209,6 +214,9 @@ const Pizzas = () => {
                     </TableCell>
 
                     <TableCell align="center">
+                      <b>Precio</b>
+                    </TableCell>
+                    <TableCell align="center">
                       <b>Acciones</b>
                     </TableCell>
                   </TableRow>
@@ -279,6 +287,10 @@ const Pizzas = () => {
                         </Collapse>
                       </TableCell>
 
+                      <TableCell align="center" key={iterador._id}>
+                        {iterador.precio}
+                      </TableCell>
+
                       <TableCell align="center">
                         <AcccionesTabla
                           funcionEliminar={() => {
@@ -331,17 +343,35 @@ const Pizzas = () => {
               </h5>
             </div>
 
-            <div className="row-mt-4">
+            <div className="row">
               <TextField
                 placeholder="Nombre pizza"
                 variant="standard"
                 fullWidth
-                onChange={handleChnageNombrePizza}
+                onChange={handleChangeNombrePizza}
                 defaultValue={nombrePizza}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
                       <LocalPizzaRoundedIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </div>
+
+            <div className="row mt-3">
+              <TextField
+                placeholder="Precio Pizza"
+                variant="standard"
+                fullWidth
+                type="number"
+                onChange={handleChangePrecioPizza}
+                defaultValue={nombrePizza}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <NumbersOutlinedIcon />
                     </InputAdornment>
                   ),
                 }}
@@ -431,13 +461,18 @@ const Pizzas = () => {
                           EditarPizza(
                             idPizza,
                             nombrePizza,
+                            precioPizza,
                             ingredientesSeleccionados
                           );
                           Limpiar();
                         }
                       : () => {
                           CerrarModalPizzas();
-                          AgregarPizza(nombrePizza, ingredientesSeleccionados);
+                          AgregarPizza(
+                            nombrePizza,
+                            precioPizza,
+                            ingredientesSeleccionados
+                          );
                           Limpiar();
                         }
                   }

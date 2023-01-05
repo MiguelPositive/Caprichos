@@ -285,20 +285,22 @@ const ContextApp = (props) => {
 
   //funciones de pizzas
 
-  const AgregarPizza = async (nombre, ingredientes) => {
+  const AgregarPizza = async (nombre, precio, ingredientes) => {
     try {
       const res = axios.post("http://192.168.18.222:4000/agregar/pizza", {
         nombre,
+        precio,
         ingredientes,
       });
 
       if ((await res).data.mensaje) {
         exito();
-
         ConsultarPizzas();
       }
     } catch (error) {
-      console.log(`ocurrio un error en el frontend al intentar `);
+      console.log(
+        `ocurrio un error en el frontend al intentar agregar una pizza: ${error} `
+      );
     }
   };
 
@@ -317,10 +319,11 @@ const ContextApp = (props) => {
     }
   };
 
-  const EditarPizza = async (_id, nombre, ingredientes) => {
+  const EditarPizza = async (_id, nombre, precio, ingredientes) => {
     const res = await axios.post("http://192.168.18.222:4000/editar/pizza", {
       _id,
       nombre,
+      precio,
       ingredientes,
     });
 
