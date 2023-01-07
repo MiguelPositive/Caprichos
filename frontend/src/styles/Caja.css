@@ -1,0 +1,26 @@
+@media (max-width: 768px) {
+  .datos-cliente-venta {
+    margin-top: 14em;
+  }
+
+  .datos-venta {
+    margin-top: 3rem;
+    height: 28rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .datos-cliente-venta {
+    margin-top: 14em;
+  }
+
+  .subtotal,
+  .total {
+    width: 50%;
+  }
+
+  .valor-domicilio,
+  .acciones-venta {
+    width: 50%;
+  }
+}

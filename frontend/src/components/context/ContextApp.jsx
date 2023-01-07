@@ -371,6 +371,24 @@ const ContextApp = (props) => {
     }
   };
 
+  //funciones de ventas
+
+  const AgregarVenta = async (fecha, datosCliente, datosTransaccion) => {
+    try {
+      const res = axios.post("http://192.168.18.222:4000/agregar/venta", {
+        fecha,
+        datosCliente,
+        datosTransaccion,
+      });
+    } catch (error) {
+      console.log(
+        `ocurrio un error en el frontend al intentar agregar la preventa o venta: ${error}`
+      );
+    }
+  };
+
+  //funciones de caja
+
   return (
     <NombreContexto.Provider
       value={{
@@ -402,6 +420,7 @@ const ContextApp = (props) => {
         EditarPizza: EditarPizza,
         EliminarPizza: EliminarPizza,
         BuscarPizzas: BuscarPizzas,
+        AgregarVenta: AgregarVenta,
       }}
     >
       {props.children}

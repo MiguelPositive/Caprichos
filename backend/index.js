@@ -15,6 +15,7 @@ const { UsuariosRouter } = require("./routes/UsuariosRoutes.js");
 const { CrudosRouter } = require("./routes/CrudosRoutes.js");
 const { ProcesadosRouter } = require("./routes/ProcesadosRoutes.js");
 const { PizzasRouter } = require("./routes/PizzasRoutes.js");
+const { VentasRouter } = require("./routes/VentasRoutes.js");
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.use("/", UsuariosRouter);
 app.use("/", CrudosRouter);
 app.use("/", ProcesadosRouter);
 app.use("/", PizzasRouter);
+app.use("/", VentasRouter);
 
 app.listen(puerto, () => {
   console.log(`servidor listo en el puerto ${puerto}`);

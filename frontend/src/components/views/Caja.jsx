@@ -32,9 +32,11 @@ import Guardar from "../buttons/Guardar";
 import AgregarProducto from "../buttons/AgregarProducto";
 import Agregar from "../buttons/Agregar";
 import "animate.css";
+import "../../styles/Caja.css";
+import moment from "moment";
 
 const Caja = () => {
-  const { ConsultarPizzas, pizzas } = useContext(NombreContexto);
+  const { ConsultarPizzas, pizzas, AgregarVenta } = useContext(NombreContexto);
 
   const [modalPizzas, setModalPizzas] = useState(false);
 
@@ -55,6 +57,12 @@ const Caja = () => {
   const [subtotal, setSubTotal] = useState(0);
   const [total, setTotal] = useState(0);
   const [domicilio, setDomicilio] = useState(0);
+
+  //datos que van a ser enviados a la db
+
+  let datosCliente = [];
+  let datosTransaccion = [];
+  let fechaActual = "";
 
   //funciones abrir y cerrar
 
@@ -92,7 +100,7 @@ const Caja = () => {
   };
 
   const handleChangeDomicilio = (e) => {
-    setDomicilio(e.target.value);
+    setDomicilio(parseInt(e.target.value));
   };
 
   //funciones añadir
@@ -111,6 +119,29 @@ const Caja = () => {
     setProductos([...productos, objeto]);
   };
 
+  const EnviarDatos = () => {
+    const cliente = {
+      nombre: nombre,
+      cedula: cedula,
+      telefono: telefono,
+      direccion: direccion,
+    };
+
+    const transaccion = {
+      productos: productos,
+      subtotal: subtotal,
+      total: total,
+      pagoCliente: 0,
+      devueltos: 0,
+      hora: moment().format("LT"),
+      esVenta: false,
+    };
+
+    datosCliente = [...datosCliente, cliente];
+    datosTransaccion = [...datosTransaccion, transaccion];
+    fechaActual = moment().format("DD/MM/YYYY");
+  };
+
   //funciones eliminar
 
   const EliminarProducto = (nombre) => {
@@ -125,15 +156,6 @@ const Caja = () => {
 
     setProductos(productosResultantes);
     setSubTotal(subtotal - quitar);
-  };
-
-  //funciones limpiar
-
-  const handleLimpiar = () => {
-    setNombre("");
-    setCedula("");
-    setTelefono("");
-    setDireccion("");
   };
 
   //funciones de subtotal y total
@@ -152,16 +174,25 @@ const Caja = () => {
 
   const ActualizarSubTotal = () => {
     let temp = 0;
-    const sub = productos.map((iterador) => {
+    productos.forEach((iterador) => {
       temp = temp + iterador.valorTotal;
       return temp;
     });
 
-    setSubTotal(sub);
+    setSubTotal(temp);
   };
 
   const ActualizarTotal = () => {
     setTotal(subtotal + domicilio);
+  };
+
+  //funciones limpiar
+
+  const handleLimpiar = () => {
+    setNombre("");
+    setCedula("");
+    setTelefono("");
+    setDireccion("");
   };
 
   //use effecs
@@ -194,332 +225,351 @@ const Caja = () => {
         height: "80vh",
       }}
     >
-      <Box className="contenedor-columnas">
-        <div className="row">
-          <div className="col-xs-12 col-sm-12 col-md-5 col-lg-5">
-            <Paper
-              elevation={4}
-              sx={{
+      <div className="row datos-cliente-venta" style={{ width: "100%" }}>
+        <div className="col-xs-12 col-sm-12 col-md-5 col-lg-5 datos-cliente">
+          <Paper
+            elevation={4}
+            sx={{
+              height: "23rem",
+              padding: "1rem 2rem 1.5rem 2rem",
+              borderRadius: "1rem",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            <h3 style={{ width: "100%", textAlign: "center" }}>
+              Datos del Cliente
+            </h3>
+            <div className="mt-2" style={{ width: "100%" }}>
+              <TextField
+                placeholder="Nombre del Cliente"
+                variant="standard"
+                value={nombre}
+                onChange={handleChangeNombre}
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </div>
+            <div className="mt-2" style={{ width: "100%" }}>
+              <TextField
+                placeholder="CC del Cliente"
+                type="number"
+                variant="standard"
+                value={cedula}
+                onChange={handleChangeCedula}
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <BadgeIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </div>
+
+            <div className="mt-2" style={{ width: "100%" }}>
+              <TextField
+                placeholder="Telefono del Cliente"
+                type="number"
+                variant="standard"
+                value={telefono}
+                onChange={handleChangeTelefono}
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PhoneIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </div>
+            <div className="mt-2" style={{ width: "100%" }}>
+              <TextField
+                placeholder="Dirección del Cliente"
+                variant="standard"
+                value={direccion}
+                onChange={handleChangeDireccion}
+                fullWidth
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <HomeWorkRoundedIcon />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </div>
+
+            <div
+              className="mt-2"
+              style={{
                 width: "100%",
-                height: "23rem",
-                padding: "1rem 2rem 1.5rem 2rem",
-                borderRadius: "1rem",
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <Limpiar accion={handleLimpiar} />
+            </div>
+          </Paper>
+        </div>
+
+        <div className="col-xs-12 col-sm-12 col-md-7 col-lg-7 ">
+          <Paper
+            elevation={4}
+            sx={{
+              width: "100%",
+              height: "23rem",
+              padding: "1rem",
+              borderRadius: "1rem",
+            }}
+            className="container datos-venta"
+          >
+            <div className="row">
+              <div className="col-sm-12 col-md-12 col-lg-12 ">
+                <AgregarProducto
+                  titulo={"Agregar Pizza"}
+                  accion={AbrirModalPizzas}
+                />
+              </div>
+            </div>
+
+            <div className="row mt-4">
+              <div className="col-sm-12 col-md-12 col-lg-12 ">
+                {/* Tabla de pizzas a vender */}
+                <Paper
+                  elevation={6}
+                  className="table-responsive"
+                  sx={{ height: "9.5rem" }}
+                >
+                  <TableContainer>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell align="center">
+                            <b>Nombre</b>
+                          </TableCell>
+                          <TableCell align="center">
+                            <b>Cantidad</b>
+                          </TableCell>
+                          <TableCell align="center">
+                            <b>Valor Unidad</b>
+                          </TableCell>
+                          <TableCell align="center">
+                            <b>Valor Total</b>
+                          </TableCell>
+                          <TableCell align="center">
+                            <b>Eliminar</b>
+                          </TableCell>
+                        </TableRow>
+                      </TableHead>
+
+                      <TableBody>
+                        {productos.map((iterador) => (
+                          <TableRow key={iterador._id}>
+                            <TableCell align="center">
+                              {iterador.nombre}
+                            </TableCell>
+                            <TableCell align="center">
+                              <TextField
+                                variant="standard"
+                                placeholder="1"
+                                type="number"
+                                onChange={(e) => {
+                                  handleChangeCantidadProducto(e);
+                                  handlechangeNombreTemporal(iterador.nombre);
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell align="center">
+                              {iterador.valorUnidad}
+                            </TableCell>
+
+                            <TableCell align="center">
+                              {iterador.valorTotal}
+                            </TableCell>
+
+                            <TableCell
+                              sx={{
+                                display: "flex",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <EliminarCerrar
+                                eliminar={true}
+                                accion={() => {
+                                  EliminarProducto(iterador.nombre);
+                                }}
+                              />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Paper>
+              </div>
+            </div>
+
+            <div
+              className="row mt-3"
+              style={{
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                flexWrap: "wrap",
               }}
             >
-              <h3 style={{ width: "100%", textAlign: "center" }}>
-                Datos del Cliente
-              </h3>
-              <div className="mt-2" style={{ width: "100%" }}>
-                <TextField
-                  placeholder="Nombre del Cliente"
-                  variant="standard"
-                  value={nombre}
-                  onChange={handleChangeNombre}
-                  fullWidth
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <PersonIcon />
-                      </InputAdornment>
-                    ),
+              <div className="col-sm-6 col-md-6 col-lg-6 subtotal">
+                <div
+                  style={{
+                    borderRadius: "3rem",
+                    background: "#D7D7D7",
+                    padding: "0.5rem",
+                    textAlign: "center",
                   }}
-                />
-              </div>
-              <div className="mt-2" style={{ width: "100%" }}>
-                <TextField
-                  placeholder="CC del Cliente"
-                  type="number"
-                  variant="standard"
-                  value={cedula}
-                  onChange={handleChangeCedula}
-                  fullWidth
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <BadgeIcon />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
+                >
+                  <b>Subtotal: </b>
+                  {subtotal}
+                </div>
               </div>
 
-              <div className="mt-2" style={{ width: "100%" }}>
+              <div className="col-sm-6 col-md-6 col-lg-6 total">
+                <div
+                  style={{
+                    borderRadius: "3rem",
+                    background: "#D7D7D7",
+                    padding: "0.5rem",
+                    textAlign: "center",
+                  }}
+                >
+                  <b>Total: </b>
+                  {total}
+                </div>
+              </div>
+            </div>
+            <div className="row mt-3">
+              <div className="col-sm-6 col-md-6 col-lg-6 valor-domicilio">
                 <TextField
-                  placeholder="Telefono del Cliente"
+                  variant="outlined"
+                  size="small"
+                  label="valor del domicilio"
                   type="number"
-                  variant="standard"
-                  value={telefono}
-                  onChange={handleChangeTelefono}
-                  fullWidth
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <PhoneIcon />
-                      </InputAdornment>
-                    ),
-                  }}
+                  onChange={handleChangeDomicilio}
                 />
               </div>
-              <div className="mt-2" style={{ width: "100%" }}>
-                <TextField
-                  placeholder="Dirección del Cliente"
-                  variant="standard"
-                  value={direccion}
-                  onChange={handleChangeDireccion}
-                  fullWidth
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <HomeWorkRoundedIcon />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </div>
-
               <div
-                className="mt-2"
+                className="col-sm-6 col-md-6 col-lg-6 acciones-venta"
                 style={{
-                  width: "100%",
                   display: "flex",
                   justifyContent: "center",
+                  alignItems: "center",
                 }}
               >
-                <Limpiar accion={handleLimpiar} />
-              </div>
-            </Paper>
-          </div>
-
-          <div className="col-xs-12 col-sm-12 col-md-7 col-lg-7">
-            <Paper
-              elevation={4}
-              sx={{
-                width: "100%",
-                height: "23rem",
-                padding: "1rem",
-                borderRadius: "1rem",
-              }}
-              className="container"
-            >
-              <div className="row">
-                <div className="col-sm-12 col-md-12 col-lg-12">
-                  <AgregarProducto
-                    titulo={"Agregar Pizza"}
-                    accion={AbrirModalPizzas}
+                <div className="mr-4">
+                  <Limpiar />
+                </div>
+                <div>
+                  <Guardar
+                    accion={() => {
+                      EnviarDatos();
+                      AgregarVenta(fechaActual, datosCliente, datosTransaccion);
+                    }}
                   />
                 </div>
               </div>
-
-              <div className="row mt-4">
-                <div className="col-sm-12 col-md-12 col-lg-12">
-                  {/* Tabla de pizzas a vender */}
-                  <Paper
-                    elevation={6}
-                    className="table-responsive"
-                    sx={{ height: "9.5rem" }}
-                  >
-                    <TableContainer>
-                      <Table>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell align="center">
-                              <b>Nombre</b>
-                            </TableCell>
-                            <TableCell align="center">
-                              <b>Cantidad</b>
-                            </TableCell>
-                            <TableCell align="center">
-                              <b>Valor Unidad</b>
-                            </TableCell>
-                            <TableCell align="center">
-                              <b>Valor Total</b>
-                            </TableCell>
-                            <TableCell align="center">
-                              <b>Eliminar</b>
-                            </TableCell>
-                          </TableRow>
-                        </TableHead>
-
-                        <TableBody>
-                          {productos.map((iterador) => (
-                            <TableRow key={iterador._id}>
-                              <TableCell align="center">
-                                {iterador.nombre}
-                              </TableCell>
-                              <TableCell align="center">
-                                <TextField
-                                  variant="standard"
-                                  placeholder="1"
-                                  type="number"
-                                  onChange={(e) => {
-                                    handleChangeCantidadProducto(e);
-                                    handlechangeNombreTemporal(iterador.nombre);
-                                  }}
-                                />
-                              </TableCell>
-                              <TableCell align="center">
-                                {iterador.valorUnidad}
-                              </TableCell>
-
-                              <TableCell align="center">
-                                {iterador.valorTotal}
-                              </TableCell>
-
-                              <TableCell
-                                sx={{
-                                  display: "flex",
-                                  justifyContent: "center",
-                                }}
-                              >
-                                <EliminarCerrar
-                                  eliminar={true}
-                                  accion={() => {
-                                    EliminarProducto(iterador.nombre);
-                                  }}
-                                />
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  </Paper>
-                </div>
-              </div>
-
-              <div className="row mt-3">
-                <div className="col-sm-6">
-                  <div
-                    style={{
-                      borderRadius: "3rem",
-                      background: "#D7D7D7",
-                      padding: "0.5rem",
-                      textAlign: "center",
-                    }}
-                  >
-                    <b>Subtotal: </b>
-                    {subtotal}
-                  </div>
-                </div>
-
-                <div className="col-sm-6">
-                  <div
-                    style={{
-                      borderRadius: "3rem",
-                      background: "#D7D7D7",
-                      padding: "0.5rem",
-                      textAlign: "center",
-                    }}
-                  >
-                    <b>Total: </b>
-                    {total}
-                  </div>
-                </div>
-              </div>
-              <div className="row mt-3">
-                <div className="col-sm-6">
-                  <TextField
-                    variant="outlined"
-                    size="small"
-                    label="valor del domicilio"
-                    type="number"
-                    onChange={handleChangeDomicilio}
-                  />
-                </div>
-                <div
-                  className="col-sm-6"
-                  style={{ display: "flex", justifyContent: "center" }}
-                >
-                  <div className="mr-4">
-                    <Limpiar />
-                  </div>
-                  <div>
-                    <Guardar />
-                  </div>
-                </div>
-              </div>
-            </Paper>
-          </div>
-        </div>
-
-        {/* Modal agregar pizza */}
-
-        <Modal open={modalPizzas} onClose={CerrarModalPizzas}>
-          <Paper
-            elevation={6}
-            className="container modal-sinfocus"
-            style={{
-              position: "absolute",
-              width: "20rem",
-              padding: "0rem 1rem 1rem 1rem",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%,-50%)",
-            }}
-          >
-            <div
-              style={{
-                width: "2rem",
-                position: "relative",
-                top: "0rem",
-                left: "17rem",
-              }}
-            >
-              <EliminarCerrar eliminar={false} accion={CerrarModalPizzas} />
-            </div>
-            <div className="row">
-              <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <h5 style={{ textAlign: "center" }}>Agregar Pizza</h5>
-              </div>
-            </div>
-            <div
-              className="row mt-4"
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                paddingBottom: "1rem",
-              }}
-            >
-              {/* Tabla de añadir pizzas */}
-              <Paper
-                elevation={6}
-                sx={{ width: "15rem", height: "10rem" }}
-                className="table-responsive"
-              >
-                <TableContainer>
-                  <Table size="small">
-                    <TableBody>
-                      {pizzas.map((iterador) => (
-                        <TableRow key={iterador._id}>
-                          <TableCell align="center">
-                            {iterador.nombre}
-                          </TableCell>
-                          <TableCell align="center">
-                            <Agregar
-                              accion={() => {
-                                AgregarPizzas(
-                                  iterador._id,
-                                  iterador.nombre,
-                                  iterador.precio,
-                                  iterador.ingredientes
-                                );
-                              }}
-                            />
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </Paper>
             </div>
           </Paper>
-        </Modal>
-      </Box>
+        </div>
+      </div>
+
+      {/* <div className="row mt-4" style={{ width: "100%" }}>
+        <div className="col-sm-12 col-md-12 col-lg-12">
+          <Paper elevation={6} className="table-responsive">
+            hola
+          </Paper>
+        </div>
+      </div> */}
+
+      {/* Modal agregar pizza */}
+
+      <Modal open={modalPizzas} onClose={CerrarModalPizzas}>
+        <Paper
+          elevation={6}
+          className="container modal-sinfocus"
+          style={{
+            position: "absolute",
+            width: "20rem",
+            padding: "0rem 1rem 1rem 1rem",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%,-50%)",
+          }}
+        >
+          <div
+            style={{
+              width: "2rem",
+              position: "relative",
+              top: "0rem",
+              left: "17rem",
+            }}
+          >
+            <EliminarCerrar eliminar={false} accion={CerrarModalPizzas} />
+          </div>
+          <div className="row">
+            <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+              <h5 style={{ textAlign: "center" }}>Agregar Pizza</h5>
+            </div>
+          </div>
+          <div
+            className="row mt-4"
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              paddingBottom: "1rem",
+            }}
+          >
+            {/* Tabla de añadir pizzas */}
+            <Paper
+              elevation={6}
+              sx={{ width: "15rem", height: "10rem" }}
+              className="table-responsive"
+            >
+              <TableContainer>
+                <Table size="small">
+                  <TableBody>
+                    {pizzas.map((iterador) => (
+                      <TableRow key={iterador._id}>
+                        <TableCell align="center">{iterador.nombre}</TableCell>
+                        <TableCell align="center">
+                          <Agregar
+                            accion={() => {
+                              AgregarPizzas(
+                                iterador._id,
+                                iterador.nombre,
+                                iterador.precio,
+                                iterador.ingredientes
+                              );
+                            }}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Paper>
+          </div>
+        </Paper>
+      </Modal>
     </Box>
   );
 };
