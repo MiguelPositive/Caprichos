@@ -373,12 +373,11 @@ const ContextApp = (props) => {
 
   //funciones de ventas
 
-  const AgregarVenta = async (fecha, datosCliente, datosTransaccion) => {
+  const AgregarVenta = async (fecha, datos) => {
     try {
       const res = axios.post("http://192.168.18.222:4000/agregar/venta", {
         fecha,
-        datosCliente,
-        datosTransaccion,
+        datos,
       });
     } catch (error) {
       console.log(

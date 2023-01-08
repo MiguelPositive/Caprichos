@@ -34,6 +34,7 @@ import Agregar from "../buttons/Agregar";
 import "animate.css";
 import "../../styles/Caja.css";
 import moment from "moment";
+import { v4 as uuidv4 } from "uuid";
 
 const Caja = () => {
   const { ConsultarPizzas, pizzas, AgregarVenta } = useContext(NombreContexto);
@@ -60,8 +61,9 @@ const Caja = () => {
 
   //datos que van a ser enviados a la db
 
-  let datosCliente = [];
-  let datosTransaccion = [];
+  let datos;
+  let datosCliente;
+  let datosTransaccion;
   let fechaActual = "";
 
   //funciones abrir y cerrar
@@ -137,9 +139,15 @@ const Caja = () => {
       esVenta: false,
     };
 
-    datosCliente = [...datosCliente, cliente];
-    datosTransaccion = [...datosTransaccion, transaccion];
+    datosCliente = cliente;
+    datosTransaccion = transaccion;
     fechaActual = moment().format("DD/MM/YYYY");
+
+    datos = {
+      idVenta: uuidv4(),
+      datosCliente: datosCliente,
+      datosTransaccion: datosTransaccion,
+    };
   };
 
   //funciones eliminar
@@ -481,7 +489,7 @@ const Caja = () => {
                   <Guardar
                     accion={() => {
                       EnviarDatos();
-                      AgregarVenta(fechaActual, datosCliente, datosTransaccion);
+                      AgregarVenta(fechaActual, datos);
                     }}
                   />
                 </div>

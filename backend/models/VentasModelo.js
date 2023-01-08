@@ -4,11 +4,7 @@ const ventasEsquema = mongoose.Schema({
   fecha: {
     type: String,
   },
-  datosCliente: {
-    type: Array,
-  },
-
-  datosTransaccion: {
+  datos: {
     type: Array,
   },
 });
