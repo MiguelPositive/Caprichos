@@ -1,6 +1,5 @@
 .contenedor-login {
   margin: 0;
-  padding: 0;
   width: 100vw;
   height: 100vh;
   background-image: url("../img/caprichos.jpeg");
@@ -10,9 +9,4 @@
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.boton-login:hover {
-  transition: 0.3s;
-  transform: translateY(-15%);
 }

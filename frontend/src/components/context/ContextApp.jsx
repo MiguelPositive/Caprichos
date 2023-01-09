@@ -31,6 +31,11 @@ const ContextApp = (props) => {
   const [pizzas, setPizzas] = useState([]);
   const [pizzasCopia, setPizzasCopia] = useState([]);
 
+  //variables de ventas
+
+  const [ventas, setVentas] = useState([]);
+  const [ventasCopia, setVentasCopia] = useState([]);
+
   const handleOpenMenu = () => {
     setAbrirMenu(!abrirMenu);
   };
@@ -373,15 +378,29 @@ const ContextApp = (props) => {
 
   //funciones de ventas
 
-  const AgregarVenta = async (fecha, datos) => {
+  const AgregarVenta = async (fecha, datosCliente, datosTransaccion, hora) => {
     try {
       const res = axios.post("http://192.168.18.222:4000/agregar/venta", {
         fecha,
-        datos,
+        datosCliente,
+        datosTransaccion,
+        hora,
       });
     } catch (error) {
       console.log(
         `ocurrio un error en el frontend al intentar agregar la preventa o venta: ${error}`
+      );
+    }
+  };
+
+  const ConsultarVentas = async () => {
+    try {
+      const res = axios.get("http://192.168.18.222:4000/consultar/ventas");
+      setVentas((await res).data.ventas);
+      setVentasCopia((await res).data.ventas);
+    } catch (error) {
+      console.log(
+        `ocurrio un error en el frontend al intentar consultar las ventas`
       );
     }
   };
@@ -420,6 +439,9 @@ const ContextApp = (props) => {
         EliminarPizza: EliminarPizza,
         BuscarPizzas: BuscarPizzas,
         AgregarVenta: AgregarVenta,
+        ConsultarVentas: ConsultarVentas,
+        ventas: ventas,
+        ventasCopia: ventasCopia,
       }}
     >
       {props.children}

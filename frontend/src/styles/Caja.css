@@ -1,6 +1,6 @@
 @media (max-width: 768px) {
   .datos-cliente-venta {
-    margin-top: 14em;
+    margin-top: 2rem;
   }
 
   .datos-venta {
@@ -11,7 +11,7 @@
 
 @media (max-width: 576px) {
   .datos-cliente-venta {
-    margin-top: 14em;
+    margin-top: 2rem;
   }
 
   .subtotal,

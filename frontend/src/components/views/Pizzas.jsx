@@ -99,7 +99,7 @@ const Pizzas = () => {
   };
 
   const handleChangePorcionesIngrediente = (e) => {
-    setPorcionesIngrediente(e.target.value);
+    setPorcionesIngrediente(parseInt(e.target.value));
   };
 
   const handleChangeCapturarId = (id) => {

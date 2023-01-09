@@ -39,7 +39,14 @@ const BotonLogout = styled(Button)({
   background: "#FFC300",
   fontWeight: "bold",
   color: "black",
-  "&:hover": { background: "#FFC300" },
+  borderRadius: "3rem",
+  transition: "0.5s",
+
+  "&:hover": {
+    transition: "0.5s",
+    background: "#DDB135",
+    transform: "translateX(-2rem)",
+  },
 });
 
 const Encabezado = () => {

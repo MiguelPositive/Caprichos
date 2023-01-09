@@ -37,7 +37,13 @@ import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
 
 const Caja = () => {
-  const { ConsultarPizzas, pizzas, AgregarVenta } = useContext(NombreContexto);
+  const {
+    ConsultarPizzas,
+    pizzas,
+    AgregarVenta,
+    ConsultarVentas,
+    ventasCopia,
+  } = useContext(NombreContexto);
 
   const [modalPizzas, setModalPizzas] = useState(false);
 
@@ -51,7 +57,7 @@ const Caja = () => {
   const [productos, setProductos] = useState([]);
 
   //cantidad que va estar cambiando
-  const [cantidad, setCantidad] = useState(0);
+  const [cantidad, setCantidad] = useState(1);
 
   const [nombreTemporal, setNombreTemporal] = useState("");
 
@@ -61,10 +67,10 @@ const Caja = () => {
 
   //datos que van a ser enviados a la db
 
-  let datos;
+  let fechaActual;
   let datosCliente;
   let datosTransaccion;
-  let fechaActual = "";
+  let hora;
 
   //funciones abrir y cerrar
 
@@ -94,7 +100,7 @@ const Caja = () => {
   };
 
   const handleChangeCantidadProducto = (e) => {
-    setCantidad(e.target.value);
+    setCantidad(parseInt(e.target.value));
   };
 
   const handlechangeNombreTemporal = (nombree) => {
@@ -110,7 +116,7 @@ const Caja = () => {
   //estas seran las pizzas que seran agregadas a la tabla
   const AgregarPizzas = (id, nombree, precioo, ingredientess) => {
     const objeto = {
-      _id: id,
+      idPizza: id,
       nombre: nombree,
       cantidad: 1,
       valorUnidad: precioo,
@@ -135,35 +141,13 @@ const Caja = () => {
       total: total,
       pagoCliente: 0,
       devueltos: 0,
-      hora: moment().format("LT"),
       esVenta: false,
     };
 
+    fechaActual = moment().format("DD/MM/YYYY");
     datosCliente = cliente;
     datosTransaccion = transaccion;
-    fechaActual = moment().format("DD/MM/YYYY");
-
-    datos = {
-      idVenta: uuidv4(),
-      datosCliente: datosCliente,
-      datosTransaccion: datosTransaccion,
-    };
-  };
-
-  //funciones eliminar
-
-  const EliminarProducto = (nombre) => {
-    let quitar = 0;
-    const productosResultantes = productos.filter((iterador) => {
-      if (iterador.nombre != nombre) {
-        return iterador;
-      } else if (iterador.nombre == nombre) {
-        quitar = iterador.valorTotal;
-      }
-    });
-
-    setProductos(productosResultantes);
-    setSubTotal(subtotal - quitar);
+    hora = moment().format("LT");
   };
 
   //funciones de subtotal y total
@@ -194,6 +178,22 @@ const Caja = () => {
     setTotal(subtotal + domicilio);
   };
 
+  //funciones eliminar
+
+  const EliminarProducto = (nombre) => {
+    let quitar = 0;
+    const productosResultantes = productos.filter((iterador) => {
+      if (iterador.nombre != nombre) {
+        return iterador;
+      } else if (iterador.nombre == nombre) {
+        quitar = iterador.valorTotal;
+      }
+    });
+
+    setProductos(productosResultantes);
+    setSubTotal(subtotal - quitar);
+  };
+
   //funciones limpiar
 
   const handleLimpiar = () => {
@@ -207,6 +207,7 @@ const Caja = () => {
 
   useEffect(() => {
     ConsultarPizzas();
+    ConsultarVentas();
   }, []);
 
   useEffect(() => {
@@ -228,6 +229,7 @@ const Caja = () => {
         paddingTop: "2rem",
         display: "flex",
         justifyContent: "center",
+        flexWrap: "wrap",
         alignItems: "center",
         width: "100vw",
         height: "80vh",
@@ -383,7 +385,7 @@ const Caja = () => {
 
                       <TableBody>
                         {productos.map((iterador) => (
-                          <TableRow key={iterador._id}>
+                          <TableRow key={iterador.idPizza}>
                             <TableCell align="center">
                               {iterador.nombre}
                             </TableCell>
@@ -489,7 +491,12 @@ const Caja = () => {
                   <Guardar
                     accion={() => {
                       EnviarDatos();
-                      AgregarVenta(fechaActual, datos);
+                      AgregarVenta(
+                        fechaActual,
+                        datosCliente,
+                        datosTransaccion,
+                        hora
+                      );
                     }}
                   />
                 </div>
@@ -499,16 +506,40 @@ const Caja = () => {
         </div>
       </div>
 
-      {/* <div className="row mt-4" style={{ width: "100%" }}>
+      <div className="row mt-5" style={{ width: "100%" }}>
         <div className="col-sm-12 col-md-12 col-lg-12">
-          <Paper elevation={6} className="table-responsive">
-            hola
+          <Paper
+            elevation={6}
+            className="table-responsive"
+            sx={{ borderRadius: "1rem", marginBottom: "4rem" }}
+          >
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell align="center">
+                      <b>Fecha</b>
+                    </TableCell>
+                    <TableCell align="center">
+                      <b>Hora</b>
+                    </TableCell>
+                    <TableCell align="center">
+                      <b>Cliente</b>
+                    </TableCell>
+                    <TableCell align="center">
+                      <b>Valor Compra</b>
+                    </TableCell>
+                    <TableCell align="center">
+                      <b>Opciones</b>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody></TableBody>
+              </Table>
+            </TableContainer>
           </Paper>
         </div>
-      </div> */}
-
-      {/* Modal agregar pizza */}
-
+      </div>
       <Modal open={modalPizzas} onClose={CerrarModalPizzas}>
         <Paper
           elevation={6}

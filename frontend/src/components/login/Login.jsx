@@ -14,7 +14,7 @@ import { Button } from "@mui/material";
 import { Paper } from "@mui/material";
 import { TextField } from "@mui/material";
 
-//icons
+//iconos
 import AccessibilityNewIcon from "@mui/icons-material/AccessibilityNew";
 import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
 import VisibilityOffRoundedIcon from "@mui/icons-material/VisibilityOffRounded";
@@ -25,8 +25,26 @@ import { NombreContexto } from "../context/ContextApp";
 import "animate.css";
 import "../../styles/Login.css";
 
-const BotonLogin = styled(Button)({
-  borderRadius: 300,
+const BotonLogin = styled(Paper)({
+  transition: "0.4s",
+  borderRadius: "20rem",
+  background: "black",
+  cursor: "pointer",
+  height: "2.5rem",
+  padding: "0.2rem",
+  color: "white",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  "&:hover": {
+    transition: "0.4s",
+    transform: "translateY(-15%)",
+    background:
+      "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(62,30,35,1) 58%, rgba(255,0,0,1) 100%)",
+    "&:before": {
+      background: "black",
+    },
+  },
 });
 
 const Login = () => {
@@ -53,9 +71,6 @@ const Login = () => {
       let cargo = await HacerValidacionCargo(usuario);
 
       CrearCookie(true, usuario, cargo);
-      console.log(`cookie de logueo: ${cookies.get("logeado")}`);
-      console.log(`cookie de usuario: ${cookies.get("usuario")}`);
-      console.log(`cookie de cargo: ${cookies.get("cargo")}`);
 
       if (cookies.get("cargo") == "cajero") {
         navigate("/caja");
@@ -81,77 +96,76 @@ const Login = () => {
         className="login"
         elevation={7}
         sx={{
-          display: "grid",
           borderRadius: "1rem",
-          gridTemplateColumns: "auto",
-          gridTemplateRows: "auto",
-          rowGap: "14%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexWrap: "wrap",
           textAlign: "center",
-          width: "18rem",
-          padding: "2rem 3rem 6rem 3rem",
-          background: "white",
+          width: "21rem",
+          padding: "3rem 4rem 3rem 4rem",
         }}
       >
-        <h5 style={{ color: "gray" }}>
-          <b>INICIO DE SESIÓN</b>
-        </h5>
-        <TextField
-          placeholder="usuario"
-          type="text"
-          variant="standard"
-          onChange={handleChangeUsuario}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <AccountCircleRoundedIcon />
-              </InputAdornment>
-            ),
-          }}
-        />
+        <div style={{ width: "100%" }}>
+          <h5 style={{ color: "gray" }}>
+            <b>INICIO DE SESIÓN</b>
+          </h5>
+        </div>
 
-        <TextField
-          type={showcontrasena ? "text" : "password"}
-          placeholder="*******"
-          variant="standard"
-          onChange={handleChangeContrasena}
-          onKeyDown={(e) => {
-            if (e.key == "Enter") {
-              handleSubmit();
-            }
-          }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <div
-                  style={{ cursor: "pointer" }}
-                  onClick={handleShowContrasena}
-                >
-                  {showcontrasena ? (
-                    <VisibilityRoundedIcon />
-                  ) : (
-                    <VisibilityOffRoundedIcon />
-                  )}
-                </div>
-              </InputAdornment>
-            ),
-          }}
-        />
+        <div className="mt-2" style={{ width: "100%" }}>
+          <TextField
+            placeholder="usuario"
+            type="text"
+            variant="standard"
+            onChange={handleChangeUsuario}
+            fullWidth
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <AccountCircleRoundedIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </div>
 
-        <BotonLogin
-          className="boton-login"
-          color="success"
-          variant="contained"
-          endIcon={<AccessibilityNewIcon />}
-          sx={{
-            marginTop: "0.5rem",
-            transition: "0.3s",
-            background:
-              "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(62,30,35,1) 58%, rgba(255,0,0,1) 100%)",
-          }}
-          onClick={handleSubmit}
-        >
-          <b>INGRESAR</b>
-        </BotonLogin>
+        <div className="mt-4" style={{ width: "100%" }}>
+          <TextField
+            type={showcontrasena ? "text" : "password"}
+            placeholder="*******"
+            variant="standard"
+            onChange={handleChangeContrasena}
+            fullWidth
+            onKeyDown={(e) => {
+              if (e.key == "Enter") {
+                handleSubmit();
+              }
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <div
+                    style={{ cursor: "pointer" }}
+                    onClick={handleShowContrasena}
+                  >
+                    {showcontrasena ? (
+                      <VisibilityRoundedIcon />
+                    ) : (
+                      <VisibilityOffRoundedIcon />
+                    )}
+                  </div>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </div>
+
+        <div className="mt-4" style={{ width: "100%" }}>
+          <BotonLogin onClick={handleSubmit}>
+            <b className="mr-1">INGRESAR</b>
+            <AccessibilityNewIcon />
+          </BotonLogin>
+        </div>
       </Paper>
     </div>
   );

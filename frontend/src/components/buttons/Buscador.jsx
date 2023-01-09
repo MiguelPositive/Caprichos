@@ -15,6 +15,15 @@ import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 //archivos externos
 import { NombreContexto } from "../context/ContextApp";
 import "../../styles/Buscador.css";
+import styled from "@emotion/styled";
+
+const BarraBusqueda = styled(Paper)({
+  borderRadius: "20rem",
+  height: "2.7rem",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+});
 
 const Buscador = ({ producto }) => {
   const { BuscarCrudos, ConsultarCrudos, BuscarProcesados, BuscarPizzas } =
@@ -46,28 +55,30 @@ const Buscador = ({ producto }) => {
   }, [elemento]);
 
   return (
-    <Paper
-      elevation={4}
-      className="boton-buscador"
-      sx={{ height: "3rem", padding: "0.5rem" }}
-    >
-      <TextField
-        variant="standard"
-        placeholder="Buscador"
-        fullWidth
-        onChange={handleChangeElemento}
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <SearchRoundedIcon />
-            </InputAdornment>
-          ),
+    <BarraBusqueda elevation={4} className="boton-buscador">
+      <div
+        style={{
+          width: "95%",
         }}
-        sx={{
-          fontSize: "1.2rem",
-        }}
-      />
-    </Paper>
+      >
+        <TextField
+          variant="standard"
+          placeholder="Buscador"
+          onChange={handleChangeElemento}
+          fullWidth
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <SearchRoundedIcon />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            fontSize: "1.2rem",
+          }}
+        />
+      </div>
+    </BarraBusqueda>
   );
 };
 

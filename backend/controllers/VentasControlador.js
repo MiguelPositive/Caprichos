@@ -1,47 +1,41 @@
 const { modeloVentas } = require("../models/VentasModelo.js");
-
-const ActualizarInventario = async () => {
-  let ingredientes;
-
-  (await modeloVentas.find()).map(async (iterador) => {
-    console.log("iterador");
-    console.log(await iterador.datos.length);
-  });
-};
+const { modeloProcesados } = require("../models/ProcesadosModelo.js");
 
 const AgregarVenta = async (req, res) => {
   try {
-    const { fecha, datos } = req.body;
+    const { fecha, datosCliente, datosTransaccion, hora } = req.body;
 
-    const Agregar = async () => {
-      const nuevaVenta = await modeloVentas({ fecha, datos });
-      nuevaVenta.save();
-    };
+    (await modeloProcesados.find()).forEach((procesados) => {
+      datosTransaccion.productos.forEach((productos) => {
+        productos.ingredientes.forEach(async (ingredientes) => {
+          if (procesados.nombre == ingredientes.nombre) {
+            console.log(`producto procesado: ${procesados.nombre}`);
+            console.log(`ingrediente de la venta: ${ingredientes.nombre}`);
 
-    const temp = await modeloVentas.find();
-
-    if (temp == "") {
-      Agregar();
-      ActualizarInventario();
-    } else {
-      (await modeloVentas.find()).map(async (iterador) => {
-        if (iterador.fecha == fecha) {
-          await modeloVentas.updateOne(
-            { _id: iterador._id },
-            {
-              $set: {
-                fecha: fecha,
-                datos: [...iterador.datos, datos],
-              },
-            }
-          );
-        } else {
-          Agregar();
-          ActualizarInventario();
-        }
+            await modeloProcesados.updateOne(
+              { _id: procesados._id },
+              {
+                $set: {
+                  nombre: procesados.nombre,
+                  cantidad:
+                    procesados.cantidad -
+                    ingredientes.cantidad * productos.cantidad,
+                  ingredientes: procesados.ingredientes,
+                },
+              }
+            );
+          }
+        });
       });
-      ActualizarInventario();
-    }
+    });
+
+    const nuevaVenta = await modeloVentas({
+      fecha,
+      datosCliente,
+      datosTransaccion,
+      hora,
+    });
+    nuevaVenta.save();
   } catch (error) {
     console.log(
       `ocurrio un error en el backend al intentar agregar la preventa o venta : ${error}`
@@ -49,4 +43,15 @@ const AgregarVenta = async (req, res) => {
   }
 };
 
-module.exports = { AgregarVenta };
+const ConsultarVentas = async (req, res) => {
+  try {
+    const ventas = (await modeloVentas.find()).lean().exec();
+    res.send({ ventas });
+  } catch (error) {
+    console.log(
+      `ocurrio un error en el backend al inetntar consultar las ventas: ${error}`
+    );
+  }
+};
+
+module.exports = { AgregarVenta, ConsultarVentas };
