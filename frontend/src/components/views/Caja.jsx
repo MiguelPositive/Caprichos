@@ -17,6 +17,7 @@ import { TableHead } from "@mui/material";
 import { TableRow } from "@mui/material";
 import { TableCell } from "@mui/material";
 import { TableBody } from "@mui/material";
+import { Fade } from "@mui/material";
 
 //icons
 import PersonIcon from "@mui/icons-material/Person";
@@ -31,10 +32,15 @@ import EliminarCerrar from "../buttons/EliminarCerrar";
 import Guardar from "../buttons/Guardar";
 import AgregarProducto from "../buttons/AgregarProducto";
 import Agregar from "../buttons/Agregar";
+import Detalles from "../buttons/Detalles";
+import EditarPreventa from "../buttons/EditarPreventa";
+import EliminarPreventa from "../buttons/EliminarPreventa";
+import ConfirmarPreventa from "../buttons/ConfirmarPreventa";
+import ImprimirFactura from "../buttons/ImprimirFactura";
+import moment from "moment";
+import logo from "../../img/Logo.png";
 import "animate.css";
 import "../../styles/Caja.css";
-import moment from "moment";
-import { v4 as uuidv4 } from "uuid";
 
 const Caja = () => {
   const {
@@ -65,6 +71,9 @@ const Caja = () => {
   const [total, setTotal] = useState(0);
   const [domicilio, setDomicilio] = useState(0);
 
+  const [detalles, setDetalles] = useState(false);
+  const [datosImprimir, setDatosImprimir] = useState([]);
+
   //datos que van a ser enviados a la db
 
   let fechaActual;
@@ -80,6 +89,10 @@ const Caja = () => {
 
   const CerrarModalPizzas = () => {
     setModalPizzas(false);
+  };
+
+  const AbrirDetalles = () => {
+    setDetalles(!detalles);
   };
 
   //funciones de cambio
@@ -139,6 +152,7 @@ const Caja = () => {
       productos: productos,
       subtotal: subtotal,
       total: total,
+      valorDomicilio: domicilio,
       pagoCliente: 0,
       devueltos: 0,
       esVenta: false,
@@ -194,6 +208,119 @@ const Caja = () => {
     setSubTotal(subtotal - quitar);
   };
 
+  // funciones imprimir factura
+
+  const Imprimir = () => {
+    let ventana = window.open();
+    ventana.document.write(`
+    
+    
+      <html lang="sp">
+        <head>
+          <meta charset="UTF-8" />
+          <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+          />
+          <title>Factura de venta</title>
+        </head>
+        <body>
+          <div
+            class="contenedor"
+            style="
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-family: 'Roboto';
+      "
+          >
+            <div
+              class="factura"
+              style="
+          border-radius: 1rem;
+          border: 1px solid gray;
+          padding: 0.5rem;
+          width: 20rem;
+        "
+            >
+              <div style="display: flex; justify-content: center; align-items: center">
+                <img src="${logo}" width="70%" />
+              </div>
+              <div style="width: 100%; text-align: center">
+                ${datosImprimir.fecha}
+              </div>
+              <div style="width: 100%; text-align: center">
+                NIT 1098807621-8
+              </div>
+              <div style="width: 100%; text-align: center">
+                Cra. 28 #50 - 40, Sotomayor
+              </div>
+              <div style="width: 100%; text-align: center">
+                Bucaramanga, Santander
+              </div>
+              <div style="width: 100%; text-align: center">300 6550004</div>
+              <div style="width: 100%; text-align: center">
+                Regimen Simplificado
+              </div>
+              <div style="width: 100%; text-align: center">Responsable</div>
+              <div style="width: 100%; text-align: center">
+                Carlos Iván Suarez Perez
+              </div>
+              <div style="width: 100%; text-align: center">
+                Codigo de Factura
+              </div>
+              <div style="width: 100%; text-align: center">
+                ${datosImprimir._id}
+              </div>
+              <div style="width: 100%; text-align: center; margin-top: 0.5rem ">
+                Cliente: ${datosImprimir.datosCliente.nombre}
+              </div>
+              <div style="width: 100%; text-align: center">
+                Cedula: ${datosImprimir.datosCliente.cedula}
+              </div>
+              <div style="width: 100%; text-align: center">
+                Telefono: ${datosImprimir.datosCliente.telefono}
+              </div>
+              <div style="width: 100%; text-align: center">
+                Domicilo: ${datosImprimir.datosCliente.direccion}
+              </div>
+              `);
+
+    datosImprimir.datosTransaccion.productos.forEach((iterador) => {
+      ventana.document.write(`
+      
+      <div style="width: 100%; text-align: center">
+      Producto: ${iterador.nombre} 
+      <br/>
+      Cantidad: ${iterador.cantidad} 
+      <br/> valor: ${iterador.valorTotal}
+    </div>`);
+    });
+
+    ventana.document.write(`
+              <div style="width: 100%; text-align: center">
+                Valor Domicilio: ${datosImprimir.datosTransaccion.valorDomicilio}
+              </div>
+              <div style="width: 100%; text-align: center">
+                Total: ${datosImprimir.datosTransaccion.total}
+              </div>
+              <div style="width: 100%; text-align: center">
+                Valor Pagado: ${datosImprimir.datosTransaccion.pagoCliente}
+              </div>
+              <div style="width: 100%; text-align: center">
+                Vueltos: ${datosImprimir.datosTransaccion.devueltos}
+              </div>
+            </div>
+          </div>
+        </body>
+      </html>
+    `);
+
+    // ventana.print();
+  };
+
   //funciones limpiar
 
   const handleLimpiar = () => {
@@ -224,15 +351,15 @@ const Caja = () => {
 
   return (
     <Box
-      className="contenedor-caja container"
+      className="contenedor-caja container animate__animated animate__fadeIn"
       sx={{
         paddingTop: "2rem",
         display: "flex",
         justifyContent: "center",
         flexWrap: "wrap",
         alignItems: "center",
-        width: "100vw",
-        height: "80vh",
+        width: "100%",
+        height: "100%",
       }}
     >
       <div className="row datos-cliente-venta" style={{ width: "100%" }}>
@@ -505,7 +632,6 @@ const Caja = () => {
           </Paper>
         </div>
       </div>
-
       <div className="row mt-5" style={{ width: "100%" }}>
         <div className="col-sm-12 col-md-12 col-lg-12">
           <Paper
@@ -513,6 +639,7 @@ const Caja = () => {
             className="table-responsive"
             sx={{ borderRadius: "1rem", marginBottom: "4rem" }}
           >
+            {/* Tabla de ventas y preventas */}
             <TableContainer>
               <Table>
                 <TableHead>
@@ -527,6 +654,9 @@ const Caja = () => {
                       <b>Cliente</b>
                     </TableCell>
                     <TableCell align="center">
+                      <b>Cedula</b>
+                    </TableCell>
+                    <TableCell align="center">
                       <b>Valor Compra</b>
                     </TableCell>
                     <TableCell align="center">
@@ -534,80 +664,172 @@ const Caja = () => {
                     </TableCell>
                   </TableRow>
                 </TableHead>
-                <TableBody></TableBody>
+                <TableBody>
+                  {ventasCopia.map((iterador) => (
+                    <TableRow key={iterador._id}>
+                      <TableCell align="center"> {iterador.fecha}</TableCell>
+                      <TableCell align="center">{iterador.hora}</TableCell>
+                      <TableCell align="center">
+                        {iterador.datosCliente.nombre}
+                      </TableCell>
+
+                      <TableCell align="center">
+                        {iterador.datosCliente.cedula}
+                      </TableCell>
+                      <TableCell align="center">
+                        {iterador.datosTransaccion.total}
+                      </TableCell>
+                      <TableCell
+                        align="center"
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Detalles
+                          accion={() => {
+                            AbrirDetalles();
+                            setDatosImprimir(iterador);
+                          }}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
               </Table>
             </TableContainer>
           </Paper>
         </div>
       </div>
-      <Modal open={modalPizzas} onClose={CerrarModalPizzas}>
-        <Paper
-          elevation={6}
-          className="container modal-sinfocus"
-          style={{
-            position: "absolute",
-            width: "20rem",
-            padding: "0rem 1rem 1rem 1rem",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%,-50%)",
-          }}
-        >
-          <div
+      {/* Modal para agregar pizzas a la pre-venta */}
+      <Modal
+        open={modalPizzas}
+        onClose={CerrarModalPizzas}
+        className="animate__animated animate__fadeIn"
+      >
+        <Fade in={modalPizzas} timeout={500}>
+          <Paper
+            elevation={6}
+            className="container modal-sinfocus"
             style={{
-              width: "2rem",
-              position: "relative",
-              top: "0rem",
-              left: "17rem",
+              position: "absolute",
+              width: "20rem",
+              padding: "0rem 1rem 1rem 1rem",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%,-50%)",
             }}
           >
-            <EliminarCerrar eliminar={false} accion={CerrarModalPizzas} />
-          </div>
-          <div className="row">
-            <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-              <h5 style={{ textAlign: "center" }}>Agregar Pizza</h5>
-            </div>
-          </div>
-          <div
-            className="row mt-4"
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              paddingBottom: "1rem",
-            }}
-          >
-            {/* Tabla de añadir pizzas */}
-            <Paper
-              elevation={6}
-              sx={{ width: "15rem", height: "10rem" }}
-              className="table-responsive"
+            <div
+              style={{
+                width: "2rem",
+                position: "relative",
+                top: "0rem",
+                left: "17rem",
+              }}
             >
-              <TableContainer>
-                <Table size="small">
-                  <TableBody>
-                    {pizzas.map((iterador) => (
-                      <TableRow key={iterador._id}>
-                        <TableCell align="center">{iterador.nombre}</TableCell>
-                        <TableCell align="center">
-                          <Agregar
-                            accion={() => {
-                              AgregarPizzas(
-                                iterador._id,
-                                iterador.nombre,
-                                iterador.precio,
-                                iterador.ingredientes
-                              );
-                            }}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Paper>
-          </div>
-        </Paper>
+              <EliminarCerrar eliminar={false} accion={CerrarModalPizzas} />
+            </div>
+            <div className="row">
+              <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <h5 style={{ textAlign: "center" }}>Agregar Pizza</h5>
+              </div>
+            </div>
+            <div
+              className="row mt-4"
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                paddingBottom: "1rem",
+              }}
+            >
+              {/* Tabla de añadir pizzas */}
+              <Paper
+                elevation={6}
+                sx={{ width: "15rem", height: "10rem" }}
+                className="table-responsive"
+              >
+                <TableContainer>
+                  <Table size="small">
+                    <TableBody>
+                      {pizzas.map((iterador) => (
+                        <TableRow key={iterador._id}>
+                          <TableCell align="center">
+                            {iterador.nombre}
+                          </TableCell>
+                          <TableCell align="center">
+                            <Agregar
+                              accion={() => {
+                                AgregarPizzas(
+                                  iterador._id,
+                                  iterador.nombre,
+                                  iterador.precio,
+                                  iterador.ingredientes
+                                );
+                              }}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Paper>
+            </div>
+          </Paper>
+        </Fade>
+      </Modal>
+      {/* Modal para abrir los detalles de la preventa */}
+      <Modal
+        open={detalles}
+        onClose={AbrirDetalles}
+        className="animate__animated animate__fadeIn"
+      >
+        <Fade in={detalles} timeout={500}>
+          <Paper
+            elevation={6}
+            className="contenedor-detalles modal-sinfocus container"
+            sx={{
+              width: "24rem",
+              height: "11rem",
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%,-50%)",
+            }}
+          >
+            <div
+              className="row"
+              style={{
+                display: "flex",
+                justifyContent: "end",
+              }}
+            >
+              <div>
+                <EliminarCerrar eliminar={false} accion={AbrirDetalles} />
+              </div>
+            </div>
+
+            <div className="row mt-1">
+              <div className="col-sm-6 col-md-6 col-lg-6 detalles">
+                <EditarPreventa />
+              </div>
+              <div className="col-sm-6 col-md-6 col-lg-6 detalles">
+                <EliminarPreventa />
+              </div>
+            </div>
+
+            <div className="row mt-4">
+              <div className="col-sm-6 col-md-6 col-lg-6 detalles">
+                <ConfirmarPreventa />
+              </div>
+              <div className="col-sm-6 col-md-6 col-lg-6 detalles">
+                <ImprimirFactura accion={Imprimir} />
+              </div>
+            </div>
+          </Paper>
+        </Fade>
       </Modal>
     </Box>
   );

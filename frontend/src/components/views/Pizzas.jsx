@@ -30,7 +30,6 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
 //arhivos externos
-import "animate.css";
 import AgregarProducto from "../buttons/AgregarProducto";
 import Buscador from "../buttons/Buscador";
 import AgregarIngredientes from "../buttons/AgregarIngredientes";
@@ -38,6 +37,7 @@ import EliminarCerrar from "../buttons/EliminarCerrar";
 import Guardar from "../buttons/Guardar";
 import { NombreContexto } from "../context/ContextApp";
 import AcccionesTabla from "../actions/AcccionesTabla";
+import "animate.css";
 
 const Pizzas = () => {
   const {
@@ -170,7 +170,7 @@ const Pizzas = () => {
   return (
     <div
       className="container animate__animated animate__fadeIn"
-      style={{ width: "100vw", height: "80vh" }}
+      style={{ width: "100%", height: "100%" }}
     >
       <div className="row mt-4 mb-3">
         <div className="container">
@@ -268,7 +268,7 @@ const Pizzas = () => {
                                     </TableHead>
                                     <TableBody>
                                       {iterador.ingredientes.map((i) => (
-                                        <TableRow>
+                                        <TableRow key={i.nombre}>
                                           <TableCell align="center">
                                             {i.nombre}
                                           </TableCell>
@@ -287,9 +287,7 @@ const Pizzas = () => {
                         </Collapse>
                       </TableCell>
 
-                      <TableCell align="center" key={iterador._id}>
-                        {iterador.precio}
-                      </TableCell>
+                      <TableCell align="center">{iterador.precio}</TableCell>
 
                       <TableCell align="center">
                         <AcccionesTabla

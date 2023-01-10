@@ -213,16 +213,6 @@ const Crudos = () => {
                 </TableBody>
               </Table>
             </TableContainer>
-
-            {/* <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
-        component="div"
-        count={rows.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      /> */}
           </Paper>
         </div>
       </div>
@@ -232,10 +222,6 @@ const Crudos = () => {
       <Modal
         open={abrirformulario}
         className="animate__animated animate__fadeIn"
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 500,
-        }}
         onClose={handleAbrirFormulario}
       >
         <Fade in={abrirformulario} timeout={500}>

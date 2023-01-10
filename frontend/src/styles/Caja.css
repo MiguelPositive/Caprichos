@@ -7,6 +7,11 @@
     margin-top: 3rem;
     height: 28rem;
   }
+
+  /* .contenedor-detalles {
+    width: 13rem;
+    background: blue;
+  } */
 }
 
 @media (max-width: 576px) {
@@ -21,6 +26,10 @@
 
   .valor-domicilio,
   .acciones-venta {
+    width: 50%;
+  }
+
+  .detalles {
     width: 50%;
   }
 }

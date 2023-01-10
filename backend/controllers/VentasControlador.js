@@ -45,7 +45,7 @@ const AgregarVenta = async (req, res) => {
 
 const ConsultarVentas = async (req, res) => {
   try {
-    const ventas = (await modeloVentas.find()).lean().exec();
+    const ventas = await modeloVentas.find().lean().exec();
     res.send({ ventas });
   } catch (error) {
     console.log(
