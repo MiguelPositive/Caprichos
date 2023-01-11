@@ -15,8 +15,12 @@ const BotonEliminarPreventa = styled(Paper)({
   cursor: "pointer",
 });
 
-const EliminarPreventa = ({ accion }) => {
-  return <BotonEliminarPreventa> Eliminar Preventa</BotonEliminarPreventa>;
+const EliminarPreventa_boton = ({ accion }) => {
+  return (
+    <BotonEliminarPreventa onClick={accion}>
+      Eliminar Preventa
+    </BotonEliminarPreventa>
+  );
 };
 
-export default EliminarPreventa;
+export default EliminarPreventa_boton;

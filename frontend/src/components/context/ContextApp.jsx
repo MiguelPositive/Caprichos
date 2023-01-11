@@ -52,9 +52,7 @@ const ContextApp = (props) => {
     cookies.remove("logeado");
     cookies.remove("usuario");
     cookies.remove("cargo");
-    console.log(cookies.get("logeado"));
-    console.log(cookies.get("usuario"));
-    console.log(cookies.get("cargo"));
+
     setConfirmacion(!confirmacion);
   };
 
@@ -378,21 +376,6 @@ const ContextApp = (props) => {
 
   //funciones de ventas
 
-  const AgregarVenta = async (fecha, datosCliente, datosTransaccion, hora) => {
-    try {
-      const res = axios.post("http://192.168.18.222:4000/agregar/venta", {
-        fecha,
-        datosCliente,
-        datosTransaccion,
-        hora,
-      });
-    } catch (error) {
-      console.log(
-        `ocurrio un error en el frontend al intentar agregar la preventa o venta: ${error}`
-      );
-    }
-  };
-
   const ConsultarVentas = async () => {
     try {
       const res = axios.get("http://192.168.18.222:4000/consultar/ventas");
@@ -401,6 +384,79 @@ const ContextApp = (props) => {
     } catch (error) {
       console.log(
         `ocurrio un error en el frontend al intentar consultar las ventas`
+      );
+    }
+  };
+
+  const AgregarVenta = async (fecha, datosCliente, datosTransaccion, hora) => {
+    try {
+      const res = axios.post("http://192.168.18.222:4000/agregar/venta", {
+        fecha,
+        datosCliente,
+        datosTransaccion,
+        hora,
+      });
+
+      if ((await res).data.mensaje) {
+        exito();
+        ConsultarVentas();
+      }
+    } catch (error) {
+      console.log(
+        `ocurrio un error en el frontend al intentar agregar la preventa o venta: ${error}`
+      );
+    }
+  };
+
+  const EditarPreventa = async (
+    _id,
+    fecha,
+    datosCliente,
+    datosTransaccion,
+    hora
+  ) => {
+    try {
+      // console.log(_id);
+      // console.log(fecha);
+      // console.log(datosCliente);
+      // console.log(datosTransaccion);
+      // console.log(hora);
+
+      const res = axios.post("http://192.168.18.222:4000/editar/preventa", {
+        _id,
+        fecha,
+        datosCliente,
+        datosTransaccion,
+        hora,
+      });
+
+      if ((await res).data.mensaje) {
+        exito();
+        ConsultarVentas();
+      }
+    } catch (error) {
+      console.log(
+        `ocurrio un error en el frontend al intentar editar la venta: ${error}`
+      );
+    }
+  };
+
+  const EliminarPreventa = async (_id) => {
+    try {
+      const res = await axios.post(
+        "http://192.168.18.222:4000/eliminar/preventa",
+        {
+          _id,
+        }
+      );
+
+      if ((await res).data.mensaje) {
+        exito();
+        ConsultarVentas();
+      }
+    } catch (error) {
+      console.log(
+        `ocurrio un error en el frontend al intentar eliminar la preventa: ${error}`
       );
     }
   };
@@ -442,6 +498,8 @@ const ContextApp = (props) => {
         ConsultarVentas: ConsultarVentas,
         ventas: ventas,
         ventasCopia: ventasCopia,
+        EditarPreventa: EditarPreventa,
+        EliminarPreventa: EliminarPreventa,
       }}
     >
       {props.children}

@@ -33,8 +33,8 @@ import Guardar from "../buttons/Guardar";
 import AgregarProducto from "../buttons/AgregarProducto";
 import Agregar from "../buttons/Agregar";
 import Detalles from "../buttons/Detalles";
-import EditarPreventa from "../buttons/EditarPreventa";
-import EliminarPreventa from "../buttons/EliminarPreventa";
+import EditarPreventa_boton from "../buttons/EditarPreventa_boton";
+import EliminarPreventa_boton from "../buttons/EliminarPreventa_boton";
 import ConfirmarPreventa from "../buttons/ConfirmarPreventa";
 import ImprimirFactura from "../buttons/ImprimirFactura";
 import moment from "moment";
@@ -49,6 +49,9 @@ const Caja = () => {
     AgregarVenta,
     ConsultarVentas,
     ventasCopia,
+    cookies,
+    EditarPreventa,
+    EliminarPreventa,
   } = useContext(NombreContexto);
 
   const [modalPizzas, setModalPizzas] = useState(false);
@@ -62,7 +65,7 @@ const Caja = () => {
   //lista de pizzas que van a estar en la tabla
   const [productos, setProductos] = useState([]);
 
-  //cantidad que va estar cambiando
+  //cantidad de pizzas que va estar cambiando
   const [cantidad, setCantidad] = useState(1);
 
   const [nombreTemporal, setNombreTemporal] = useState("");
@@ -71,8 +74,12 @@ const Caja = () => {
   const [total, setTotal] = useState(0);
   const [domicilio, setDomicilio] = useState(0);
 
-  const [detalles, setDetalles] = useState(false);
+  const [modalDetalles, setModalDetalles] = useState(false);
   const [datosImprimir, setDatosImprimir] = useState([]);
+
+  const [editor, setEditor] = useState(false);
+
+  let cargo = cookies.get("cargo");
 
   //datos que van a ser enviados a la db
 
@@ -92,7 +99,7 @@ const Caja = () => {
   };
 
   const AbrirDetalles = () => {
-    setDetalles(!detalles);
+    setModalDetalles(!modalDetalles);
   };
 
   //funciones de cambio
@@ -101,7 +108,7 @@ const Caja = () => {
   };
 
   const handleChangeCedula = (e) => {
-    setCedula(e.target.value);
+    setCedula(parseInt(e.target.value));
   };
 
   const handleChangeTelefono = (e) => {
@@ -162,6 +169,11 @@ const Caja = () => {
     datosCliente = cliente;
     datosTransaccion = transaccion;
     hora = moment().format("LT");
+
+    console.log(fechaActual);
+    console.log(datosCliente);
+    console.log(datosTransaccion);
+    console.log(hora);
   };
 
   //funciones de subtotal y total
@@ -190,6 +202,34 @@ const Caja = () => {
 
   const ActualizarTotal = () => {
     setTotal(subtotal + domicilio);
+  };
+
+  //funciones editar
+
+  const PreparaEdicion = () => {
+    //primero valido si es una venta o prevente y luego
+    // valido si el cargo del usuario le permite editar esa venta
+
+    const Ejecutar = () => {
+      setEditor(true);
+      setNombre(datosImprimir.datosCliente.nombre);
+      setCedula(datosImprimir.datosCliente.cedula);
+      setTelefono(datosImprimir.datosCliente.telefono);
+      setDireccion(datosImprimir.datosCliente.direccion);
+      setProductos(datosImprimir.datosTransaccion.productos);
+      setDomicilio(datosImprimir.datosTransaccion.valorDomicilio);
+    };
+
+    //esVenta se inicializa como false, es decir, como una preventa
+    if (!datosImprimir.datosTransaccion.esVenta) {
+      Ejecutar();
+    } else {
+      if (cargo == "admin" || cargo == "visitante") {
+        Ejecutar();
+      } else {
+        alert("no tiene autorizacion para editar una venta");
+      }
+    }
   };
 
   //funciones eliminar
@@ -323,11 +363,28 @@ const Caja = () => {
 
   //funciones limpiar
 
-  const handleLimpiar = () => {
+  const LimpiarDatosCliente = () => {
     setNombre("");
     setCedula("");
     setTelefono("");
     setDireccion("");
+  };
+
+  const LimpiarDatosTransaccion = () => {
+    setProductos([]);
+    setDomicilio("");
+    setCantidad("");
+  };
+
+  const LimpiarTodo = () => {
+    setNombre("");
+    setCedula("");
+    setTelefono("");
+    setDireccion("");
+    setProductos([]);
+    setDomicilio("");
+    setCantidad("");
+    setDatosImprimir([]);
   };
 
   //use effecs
@@ -455,7 +512,7 @@ const Caja = () => {
                 justifyContent: "center",
               }}
             >
-              <Limpiar accion={handleLimpiar} />
+              <Limpiar accion={LimpiarDatosCliente} />
             </div>
           </Paper>
         </div>
@@ -519,8 +576,8 @@ const Caja = () => {
                             <TableCell align="center">
                               <TextField
                                 variant="standard"
-                                placeholder="1"
                                 type="number"
+                                value={iterador.cantidad}
                                 onChange={(e) => {
                                   handleChangeCantidadProducto(e);
                                   handlechangeNombreTemporal(iterador.nombre);
@@ -600,6 +657,7 @@ const Caja = () => {
                   size="small"
                   label="valor del domicilio"
                   type="number"
+                  value={domicilio}
                   onChange={handleChangeDomicilio}
                 />
               </div>
@@ -612,19 +670,35 @@ const Caja = () => {
                 }}
               >
                 <div className="mr-4">
-                  <Limpiar />
+                  <Limpiar accion={LimpiarDatosTransaccion} />
                 </div>
                 <div>
                   <Guardar
-                    accion={() => {
-                      EnviarDatos();
-                      AgregarVenta(
-                        fechaActual,
-                        datosCliente,
-                        datosTransaccion,
-                        hora
-                      );
-                    }}
+                    accion={
+                      editor
+                        ? () => {
+                            EnviarDatos();
+                            EditarPreventa(
+                              datosImprimir._id,
+                              fechaActual,
+                              datosCliente,
+                              datosTransaccion,
+                              hora
+                            );
+                            setEditor(false);
+                            LimpiarTodo();
+                          }
+                        : () => {
+                            EnviarDatos();
+                            AgregarVenta(
+                              fechaActual,
+                              datosCliente,
+                              datosTransaccion,
+                              hora
+                            );
+                            LimpiarTodo();
+                          }
+                    }
                   />
                 </div>
               </div>
@@ -689,8 +763,9 @@ const Caja = () => {
                       >
                         <Detalles
                           accion={() => {
-                            AbrirDetalles();
                             setDatosImprimir(iterador);
+
+                            AbrirDetalles();
                           }}
                         />
                       </TableCell>
@@ -782,11 +857,11 @@ const Caja = () => {
       </Modal>
       {/* Modal para abrir los detalles de la preventa */}
       <Modal
-        open={detalles}
+        open={modalDetalles}
         onClose={AbrirDetalles}
         className="animate__animated animate__fadeIn"
       >
-        <Fade in={detalles} timeout={500}>
+        <Fade in={modalDetalles} timeout={500}>
           <Paper
             elevation={6}
             className="contenedor-detalles modal-sinfocus container"
@@ -807,16 +882,32 @@ const Caja = () => {
               }}
             >
               <div>
-                <EliminarCerrar eliminar={false} accion={AbrirDetalles} />
+                <EliminarCerrar
+                  eliminar={false}
+                  accion={() => {
+                    AbrirDetalles();
+                    LimpiarTodo();
+                  }}
+                />
               </div>
             </div>
 
             <div className="row mt-1">
               <div className="col-sm-6 col-md-6 col-lg-6 detalles">
-                <EditarPreventa />
+                <EditarPreventa_boton
+                  accion={() => {
+                    AbrirDetalles();
+                    PreparaEdicion();
+                  }}
+                />
               </div>
               <div className="col-sm-6 col-md-6 col-lg-6 detalles">
-                <EliminarPreventa />
+                <EliminarPreventa_boton
+                  accion={() => {
+                    AbrirDetalles();
+                    EliminarPreventa(datosImprimir._id);
+                  }}
+                />
               </div>
             </div>
 

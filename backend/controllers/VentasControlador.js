@@ -54,4 +54,49 @@ const ConsultarVentas = async (req, res) => {
   }
 };
 
-module.exports = { AgregarVenta, ConsultarVentas };
+const EditarPreventa = async (req, res) => {
+  try {
+    const { _id, fecha, datosCliente, datosTransaccion, hora } = req.body;
+
+    (await modeloVentas.find()).forEach(async (elemento) => {
+      if (_id == elemento._id) {
+        await modeloVentas.updateOne(
+          { _id },
+          {
+            $set: {
+              fecha: elemento.fecha,
+              datosCliente,
+              datosTransaccion,
+              hora: elemento.hora,
+            },
+          }
+        );
+      }
+    });
+
+    res.json({ mensaje: true });
+  } catch (error) {
+    console.log(
+      `ocurrio un error en el frontend al intentar editar la venta: ${error}`
+    );
+  }
+};
+
+const EliminarPreventa = async (req, res) => {
+  try {
+    const { _id } = req.body;
+    await modeloVentas.deleteOne({ _id });
+    res.json({ mensaje: true });
+  } catch (error) {
+    console.log(
+      `ocurrio un error en el backend la intentar eliminar la preventa o venta: ${error}`
+    );
+  }
+};
+
+module.exports = {
+  AgregarVenta,
+  ConsultarVentas,
+  EditarPreventa,
+  EliminarPreventa,
+};

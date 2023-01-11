@@ -15,8 +15,10 @@ const BotonEditarPreventa = styled(Paper)({
   cursor: "pointer",
 });
 
-const EditarPreventa = ({ accion }) => {
-  return <BotonEditarPreventa> Editar Preventa</BotonEditarPreventa>;
+const EditarPreventa_boton = ({ accion }) => {
+  return (
+    <BotonEditarPreventa onClick={accion}> Editar Preventa</BotonEditarPreventa>
+  );
 };
 
-export default EditarPreventa;
+export default EditarPreventa_boton;
