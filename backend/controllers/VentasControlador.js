@@ -3,15 +3,12 @@ const { modeloProcesados } = require("../models/ProcesadosModelo.js");
 
 const AgregarVenta = async (req, res) => {
   try {
-    const { fecha, datosCliente, datosTransaccion, hora } = req.body;
+    const { fecha, datosCliente, datosTransaccion, hora, esVenta } = req.body;
 
     (await modeloProcesados.find()).forEach((procesados) => {
       datosTransaccion.productos.forEach((productos) => {
         productos.ingredientes.forEach(async (ingredientes) => {
           if (procesados.nombre == ingredientes.nombre) {
-            console.log(`producto procesado: ${procesados.nombre}`);
-            console.log(`ingrediente de la venta: ${ingredientes.nombre}`);
-
             await modeloProcesados.updateOne(
               { _id: procesados._id },
               {
@@ -34,8 +31,10 @@ const AgregarVenta = async (req, res) => {
       datosCliente,
       datosTransaccion,
       hora,
+      esVenta,
     });
     nuevaVenta.save();
+    res.json({ mensaje: true });
   } catch (error) {
     console.log(
       `ocurrio un error en el backend al intentar agregar la preventa o venta : ${error}`
@@ -82,6 +81,33 @@ const EditarPreventa = async (req, res) => {
   }
 };
 
+const ConfirmarPreventa = async (req, res) => {
+  try {
+    const { _id } = req.body;
+
+    (await modeloVentas.find()).map(async (elemento) => {
+      if (_id == elemento._id) {
+        await modeloVentas.updateOne(
+          { _id },
+          {
+            fecha: elemento.fecha,
+            datosCliente: elemento.datosCliente,
+            datosTransaccion: elemento.datosTransaccion,
+            hora: elemento.hora,
+            esVenta: true,
+          }
+        );
+      }
+    });
+
+    res.json({ mensaje: true });
+  } catch (error) {
+    console.log(
+      `ocurrio un error en el backend al intentar confirmar la venta: ${error}`
+    );
+  }
+};
+
 const EliminarPreventa = async (req, res) => {
   try {
     const { _id } = req.body;
@@ -99,4 +125,5 @@ module.exports = {
   ConsultarVentas,
   EditarPreventa,
   EliminarPreventa,
+  ConfirmarPreventa,
 };

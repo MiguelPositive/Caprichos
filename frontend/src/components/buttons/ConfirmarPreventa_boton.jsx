@@ -15,8 +15,12 @@ const BotonConfirmarPreventa = styled(Paper)({
   cursor: "pointer",
 });
 
-const ConfirmarPreventa = ({ accion }) => {
-  return <BotonConfirmarPreventa> Confirmar Preventa</BotonConfirmarPreventa>;
+const ConfirmarPreventa_boton = ({ accion }) => {
+  return (
+    <BotonConfirmarPreventa onClick={accion}>
+      Confirmar Preventa
+    </BotonConfirmarPreventa>
+  );
 };
 
-export default ConfirmarPreventa;
+export default ConfirmarPreventa_boton;

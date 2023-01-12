@@ -35,7 +35,7 @@ import Agregar from "../buttons/Agregar";
 import Detalles from "../buttons/Detalles";
 import EditarPreventa_boton from "../buttons/EditarPreventa_boton";
 import EliminarPreventa_boton from "../buttons/EliminarPreventa_boton";
-import ConfirmarPreventa from "../buttons/ConfirmarPreventa";
+import ConfirmarPreventa_boton from "../buttons/ConfirmarPreventa_boton";
 import ImprimirFactura from "../buttons/ImprimirFactura";
 import moment from "moment";
 import logo from "../../img/Logo.png";
@@ -52,6 +52,7 @@ const Caja = () => {
     cookies,
     EditarPreventa,
     EliminarPreventa,
+    ConfirmarPreventa,
   } = useContext(NombreContexto);
 
   const [modalPizzas, setModalPizzas] = useState(false);
@@ -87,6 +88,7 @@ const Caja = () => {
   let datosCliente;
   let datosTransaccion;
   let hora;
+  let esVenta;
 
   //funciones abrir y cerrar
 
@@ -162,18 +164,13 @@ const Caja = () => {
       valorDomicilio: domicilio,
       pagoCliente: 0,
       devueltos: 0,
-      esVenta: false,
     };
 
     fechaActual = moment().format("DD/MM/YYYY");
     datosCliente = cliente;
     datosTransaccion = transaccion;
     hora = moment().format("LT");
-
-    console.log(fechaActual);
-    console.log(datosCliente);
-    console.log(datosTransaccion);
-    console.log(hora);
+    esVenta = false;
   };
 
   //funciones de subtotal y total
@@ -221,7 +218,7 @@ const Caja = () => {
     };
 
     //esVenta se inicializa como false, es decir, como una preventa
-    if (!datosImprimir.datosTransaccion.esVenta) {
+    if (!datosImprimir.esVenta) {
       Ejecutar();
     } else {
       if (cargo == "admin" || cargo == "visitante") {
@@ -229,6 +226,15 @@ const Caja = () => {
       } else {
         alert("no tiene autorizacion para editar una venta");
       }
+    }
+  };
+
+  const Confirmar = () => {
+    if (datosImprimir.esVenta) {
+      alert("ya es una venta");
+    } else {
+      AbrirDetalles();
+      ConfirmarPreventa(datosImprimir._id);
     }
   };
 
@@ -694,7 +700,8 @@ const Caja = () => {
                               fechaActual,
                               datosCliente,
                               datosTransaccion,
-                              hora
+                              hora,
+                              esVenta
                             );
                             LimpiarTodo();
                           }
@@ -913,7 +920,7 @@ const Caja = () => {
 
             <div className="row mt-4">
               <div className="col-sm-6 col-md-6 col-lg-6 detalles">
-                <ConfirmarPreventa />
+                <ConfirmarPreventa_boton accion={Confirmar} />
               </div>
               <div className="col-sm-6 col-md-6 col-lg-6 detalles">
                 <ImprimirFactura accion={Imprimir} />

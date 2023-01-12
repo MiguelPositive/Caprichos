@@ -14,6 +14,10 @@ const ventasEsquema = mongoose.Schema({
   hora: {
     type: String,
   },
+
+  esVenta: {
+    type: Boolean,
+  },
 });
 
 const modeloVentas = mongoose.model("ventas", ventasEsquema);

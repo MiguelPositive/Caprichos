@@ -388,13 +388,20 @@ const ContextApp = (props) => {
     }
   };
 
-  const AgregarVenta = async (fecha, datosCliente, datosTransaccion, hora) => {
+  const AgregarVenta = async (
+    fecha,
+    datosCliente,
+    datosTransaccion,
+    hora,
+    esVenta
+  ) => {
     try {
       const res = axios.post("http://192.168.18.222:4000/agregar/venta", {
         fecha,
         datosCliente,
         datosTransaccion,
         hora,
+        esVenta,
       });
 
       if ((await res).data.mensaje) {
@@ -416,12 +423,6 @@ const ContextApp = (props) => {
     hora
   ) => {
     try {
-      // console.log(_id);
-      // console.log(fecha);
-      // console.log(datosCliente);
-      // console.log(datosTransaccion);
-      // console.log(hora);
-
       const res = axios.post("http://192.168.18.222:4000/editar/preventa", {
         _id,
         fecha,
@@ -457,6 +458,23 @@ const ContextApp = (props) => {
     } catch (error) {
       console.log(
         `ocurrio un error en el frontend al intentar eliminar la preventa: ${error}`
+      );
+    }
+  };
+
+  const ConfirmarPreventa = async (_id) => {
+    const res = axios.post("http://192.168.18.222:4000/confirmar/preventa", {
+      _id,
+    });
+
+    if ((await res).data.mensaje) {
+      exito();
+    }
+
+    try {
+    } catch (error) {
+      console.log(
+        `ocurrio un error en el frontend al intentar confirmar la preventa: ${error}`
       );
     }
   };
@@ -500,6 +518,7 @@ const ContextApp = (props) => {
         ventasCopia: ventasCopia,
         EditarPreventa: EditarPreventa,
         EliminarPreventa: EliminarPreventa,
+        ConfirmarPreventa: ConfirmarPreventa,
       }}
     >
       {props.children}
