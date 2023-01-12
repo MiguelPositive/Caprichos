@@ -58,7 +58,7 @@ const Buscador = ({ producto }) => {
     <BarraBusqueda elevation={4} className="boton-buscador">
       <div
         style={{
-          width: "95%",
+          width: "93%",
         }}
       >
         <TextField

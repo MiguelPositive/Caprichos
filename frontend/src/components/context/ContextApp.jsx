@@ -36,6 +36,7 @@ const ContextApp = (props) => {
   const [ventas, setVentas] = useState([]);
   const [ventasCopia, setVentasCopia] = useState([]);
 
+  //abrir menu lateral
   const handleOpenMenu = () => {
     setAbrirMenu(!abrirMenu);
   };
@@ -48,7 +49,6 @@ const ContextApp = (props) => {
   };
 
   const EliminarCookie = () => {
-    console.log("cookies eliminadas");
     cookies.remove("logeado");
     cookies.remove("usuario");
     cookies.remove("cargo");

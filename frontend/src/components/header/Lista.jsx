@@ -2,10 +2,7 @@
 import React from "react";
 import { useState } from "react";
 import { useContext } from "react";
-import { useRef } from "react";
-
-//archivos externos
-import { NombreContexto } from "../context/ContextApp";
+import { useEffect } from "react";
 
 //material react ui
 import { List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
@@ -22,18 +19,35 @@ import SquareFootRoundedIcon from "@mui/icons-material/SquareFootRounded";
 import PointOfSaleRoundedIcon from "@mui/icons-material/PointOfSaleRounded";
 import TurnLeftRoundedIcon from "@mui/icons-material/TurnLeftRounded";
 
+//archivos externos
+import { NombreContexto } from "../context/ContextApp";
+import "../../styles/Lista.css";
+
 const Lista = () => {
   const { abrirMenu, handleOpenMenu } = useContext(NombreContexto);
-  const [anchorEl, setAnchorEl] = useState(false);
-  const open = Boolean(anchorEl);
 
-  const handleAbrirSubMenu = (e) => {
-    setAnchorEl(e.currentTarget);
+  const [subMenu, setSubMenu] = useState(null);
+
+  let temp = Boolean(subMenu);
+
+  const AbrirSubMenu = (e) => {
+    setSubMenu(e.currentTarget);
   };
 
-  const handleChangeCerrarSubMenu = () => {
-    setAnchorEl(null);
+  const CerrarSubMenu = () => {
+    setSubMenu(null);
   };
+
+  const open = () => {
+    if (!abrirMenu) {
+      CerrarSubMenu();
+      temp = Boolean(subMenu);
+    }
+  };
+
+  useEffect(() => {
+    open();
+  }, [abrirMenu]);
 
   const TextoOpciones = styled(Typography)({
     color: "gray",
@@ -49,7 +63,6 @@ const Lista = () => {
         onClose={handleOpenMenu}
         variant="temporary"
         ModalProps={{ keepMounted: true }}
-        sx={{ flexGrow: 1 }}
       >
         <List component="nav">
           <NavLink to="/inicio">
@@ -85,15 +98,6 @@ const Lista = () => {
             </ListItem>
           </NavLink>
 
-          <ListItem button onClick={handleAbrirSubMenu}>
-            <ListItemIcon>
-              <SquareFootRoundedIcon />
-            </ListItemIcon>
-            <ListItemText>
-              <TextoOpciones>Inventario</TextoOpciones>
-            </ListItemText>
-          </ListItem>
-
           <NavLink to="/usuarios">
             <ListItem button onClick={handleOpenMenu}>
               <ListItemIcon>
@@ -104,15 +108,21 @@ const Lista = () => {
               </ListItemText>
             </ListItem>
           </NavLink>
+
+          <ListItem button onClick={AbrirSubMenu}>
+            <ListItemIcon>
+              <SquareFootRoundedIcon />
+            </ListItemIcon>
+            <ListItemText>
+              <TextoOpciones>Inventario</TextoOpciones>
+            </ListItemText>
+          </ListItem>
         </List>
       </Drawer>
 
-      <Menu
-        open={open}
-        onClose={handleChangeCerrarSubMenu}
-        sx={{ marginLeft: "9.1rem", marginTop: "-13rem" }}
-      >
-        <TurnLeftRoundedIcon style={{ fontSize: "2rem" }} />
+      {/* Sub menu */}
+
+      <Menu open={temp} onClose={CerrarSubMenu} anchorEl={subMenu}>
         <MenuItem>
           <NavLink to="/crudos">
             <ListItem

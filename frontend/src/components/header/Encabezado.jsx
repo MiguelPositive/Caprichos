@@ -53,6 +53,8 @@ const Encabezado = () => {
   const { cookies, EliminarCookie, handleOpenMenu } =
     useContext(NombreContexto);
 
+  let cargo = cookies.get("cargo");
+
   return (
     <div className="animate__animated animate__fadeIn">
       <AppBar position="static">
@@ -65,15 +67,19 @@ const Encabezado = () => {
               background: "",
             }}
           >
-            <div style={{ background: "" }}>
-              <IconButton onClick={handleOpenMenu}>
-                <TextoOpciones>
-                  <ViewHeadlineRoundedIcon />
-                </TextoOpciones>
-              </IconButton>
-            </div>
+            {cargo == "admin" || cargo == "visitante" ? (
+              <div>
+                <IconButton onClick={handleOpenMenu}>
+                  <TextoOpciones>
+                    <ViewHeadlineRoundedIcon />
+                  </TextoOpciones>
+                </IconButton>
+              </div>
+            ) : (
+              <div> </div>
+            )}
 
-            <div style={{ background: "" }}>
+            <div>
               <TextoOpciones>{cookies.get("usuario")}</TextoOpciones>
             </div>
           </div>
