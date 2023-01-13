@@ -58,18 +58,17 @@ const ContextApp = (props) => {
 
   //funciones de usuarios
 
-  const HacerValidacionUsuario = async (usuarioo, contrasenaa) => {
-    console.log(`usuario: ${usuarioo} contraseña: ${contrasenaa}`);
+  const HacerValidacionUsuario = async (usuario, contrasena) => {
     try {
       const res = await axios.post(
         "http://192.168.18.222:4000/validar/usuario",
         {
-          usuario: usuarioo,
-          contrasena: contrasenaa,
+          usuario,
+          contrasena,
         }
       );
 
-      return res.data;
+      return (await res).data.mensaje;
     } catch (error) {
       console.log(
         `ocurrio un error  en le frontend al intentar enviar los datos del usuario para ser validado: ${error} `
@@ -77,15 +76,14 @@ const ContextApp = (props) => {
     }
   };
 
-  const HacerValidacionCargo = async (usuarioo) => {
-    console.log(`usuario obtenido en la funcion validar cargo: ${usuarioo}`);
+  const HacerValidacionCargo = async (usuario) => {
     try {
       const res = await axios.post("http://192.168.18.222:4000/validar/cargo", {
-        usuario: usuarioo,
+        usuario,
       });
 
-      console.log(`res.data: ${res.data} `);
-      return res.data;
+      // console.log((await res).data.cargo);
+      return (await res).data.cargo;
     } catch (error) {
       console.log(
         `ocurrio un error en el frontend al intentar validar el cargo: ${error} `

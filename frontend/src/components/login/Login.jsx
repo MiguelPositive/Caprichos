@@ -65,24 +65,20 @@ const Login = () => {
   };
 
   const handleSubmit = async () => {
-    console.log(`usuario: ${usuario} contraseña: ${contrasena}`);
+    let verificador = await HacerValidacionUsuario(usuario, contrasena);
 
-    if ((await HacerValidacionUsuario(usuario, contrasena)) == true) {
+    if (verificador) {
       let cargo = await HacerValidacionCargo(usuario);
 
       CrearCookie(true, usuario, cargo);
 
       if (cookies.get("cargo") == "cajero") {
         navigate("/caja");
-      } else if (cookies.get("cargo") == "admin") {
-        window.location = "http://192.168.18.222:5173/inicio";
+      } else if (cookies.get("cargo") == "admin" || cookies.get("visitante")) {
+        navigate("/inicio");
       }
-    } else if ((await HacerValidacionUsuario(usuario, contrasena)) == false) {
-      alert("el usuario no existe");
     } else {
-      alert(
-        `usuario: ${cookies.get("usuario")} cargo: ${cookies.get("cargo")}`
-      );
+      alert("el usuario o contraseña invalido");
     }
   };
 

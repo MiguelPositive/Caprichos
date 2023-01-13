@@ -6,44 +6,46 @@ const AgregarUsuario = async (req, res) => {
     const nuevoEmpleado = modeloUsuarios({ usuario, contrasena, cargo });
 
     nuevoEmpleado.save();
-    res.json({ mensaje: "usuario agregado" });
+    res.json({ mensaje: true });
   } catch (error) {
     console.log(
-      `ocurrio un error al intentar agregar el usaurio en el backend: ${error}`
+      `ocurrio un error en el backend al intentar agregar el usaurio: ${error}`
     );
   }
 };
 
+//valida el usuario y contraseña para verificar que la persona tenga acceso
 const ValidarUsuario = async (req, res) => {
-  const { usuario, contrasena } = req.body;
+  try {
+    const { usuario, contrasena } = req.body;
 
-  console.log(`usuario: ${usuario} contraseña: ${contrasena}`);
-
-  const usuarioValidado = (await modeloUsuarios.find()).map(
-    (iterador) =>
-      iterador.usuario == usuario && iterador.contrasena == contrasena
-  );
-  res.send(...usuarioValidado);
+    console.log();
+    let temp = false;
+    (await modeloUsuarios.find()).forEach((iterador) => {
+      if (iterador.usuario === usuario && iterador.contrasena === contrasena) {
+        temp = true;
+      }
+    });
+    res.json({ mensaje: temp });
+  } catch (error) {
+    console.log(
+      `ocurrio un error en el backend al intentar validar el usuario`
+    );
+  }
 };
 
 const ValidarCargo = async (req, res) => {
-  console.log("usuario para validar dentro del controlador Validar Cargo");
-  console.log(await req.body.usuario);
-
-  console.log("cuerpo solicitudad");
-  console.log(req.body);
-
   try {
-    const validacionCargo = await modeloUsuarios.find({
-      usuario: req.body.usuario,
+    const { usuario } = req.body;
+    let cargo = "";
+
+    (await modeloUsuarios.find()).forEach((iterador) => {
+      if (iterador.usuario == usuario) {
+        cargo = iterador.cargo;
+      }
     });
 
-    // console.log("cargo validado");
-    console.log(validacionCargo[0].cargo);
-    let Cargo = validacionCargo[0].cargo;
-
-    console.log(`Cargo : ${Cargo}`);
-    res.send(Cargo);
+    res.json({ cargo: cargo });
   } catch (error) {
     console.log(
       `ocurrio un error al intentar validar el cargo en el backend ${error}`

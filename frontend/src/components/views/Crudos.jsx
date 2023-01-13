@@ -119,7 +119,7 @@ const Crudos = () => {
   return (
     <div
       className="container animate__animated animate__fadeIn"
-      style={{ width: "100vw", height: "80vh" }}
+      style={{ width: "100%", height: "100%" }}
     >
       <div className="row mt-4 mb-3">
         <div className="container">
