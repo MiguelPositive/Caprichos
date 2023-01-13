@@ -26,7 +26,7 @@ const BarraBusqueda = styled(Paper)({
 });
 
 const Buscador = ({ producto }) => {
-  const { BuscarCrudos, ConsultarCrudos, BuscarProcesados, BuscarPizzas } =
+  const { BuscarCrudos, BuscarProcesados, BuscarPizzas, BuscarVentas } =
     useContext(NombreContexto);
   const [elemento, setElemento] = useState("");
 
@@ -46,6 +46,10 @@ const Buscador = ({ producto }) => {
     } else if (producto == "pizzas") {
       setTimeout(() => {
         BuscarPizzas(elemento);
+      }, 200);
+    } else if (producto == "ventas") {
+      setTimeout(() => {
+        BuscarVentas(elemento);
       }, 200);
     }
   };

@@ -5,13 +5,8 @@
 
   .datos-venta {
     margin-top: 3rem;
-    height: 28rem;
+    height: 24rem;
   }
-
-  /* .contenedor-detalles {
-    width: 13rem;
-    background: blue;
-  } */
 }
 
 @media (max-width: 576px) {
@@ -31,5 +26,22 @@
 
   .detalles {
     width: 50%;
+  }
+
+  .btn-agregar-pizza,
+  .btn-buscarventa-pizza {
+    width: 50%;
+  }
+}
+
+@media (max-width: 401px) {
+  .btn-agregar-pizza,
+  .btn-buscarventa-pizza {
+    width: 100%;
+    margin: auto 25%;
+  }
+
+  .btn-agregar-pizza {
+    margin-bottom: 5%;
   }
 }

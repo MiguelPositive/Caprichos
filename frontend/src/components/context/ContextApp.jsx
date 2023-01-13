@@ -469,6 +469,7 @@ const ContextApp = (props) => {
 
     if ((await res).data.mensaje) {
       exito();
+      ConsultarVentas();
     }
 
     try {
@@ -476,6 +477,45 @@ const ContextApp = (props) => {
       console.log(
         `ocurrio un error en el frontend al intentar confirmar la preventa: ${error}`
       );
+    }
+  };
+
+  const BuscarVentas = (dato) => {
+    /* la busqueda se filtra por los siguientes parametros: 
+    fecha, hora, nombre cliente, cedula, y valor compra de la venta.*/
+
+    let resultados;
+
+    if (dato == "") {
+      setVentasCopia(ventas);
+    } else {
+      resultados = ventas.filter((venta) => {
+        if (venta.fecha.includes(dato)) {
+          return venta;
+        } else if (venta.hora.toLowerCase().includes(dato.toLowerCase())) {
+          return venta;
+        } else if (
+          venta.datosCliente.nombre.toLowerCase().includes(dato.toLowerCase())
+        ) {
+          return venta;
+        } else if (
+          venta.datosCliente.cedula
+            .toString()
+            .toLowerCase()
+            .includes(dato.toString().toLowerCase())
+        ) {
+          return venta;
+        } else if (
+          venta.datosTransaccion.total
+            .toString()
+            .toLowerCase()
+            .includes(dato.toString().toLowerCase())
+        ) {
+          return venta;
+        }
+      });
+
+      setVentasCopia(resultados);
     }
   };
 
@@ -519,6 +559,7 @@ const ContextApp = (props) => {
         EditarPreventa: EditarPreventa,
         EliminarPreventa: EliminarPreventa,
         ConfirmarPreventa: ConfirmarPreventa,
+        BuscarVentas: BuscarVentas,
       }}
     >
       {props.children}

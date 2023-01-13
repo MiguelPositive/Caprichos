@@ -76,6 +76,30 @@ const Lista = () => {
             </ListItem>
           </NavLink>
 
+          <NavLink to="/usuarios">
+            <ListItem button onClick={handleOpenMenu}>
+              <ListItemIcon>
+                <SquareFootRoundedIcon />
+              </ListItemIcon>
+              <ListItemText>
+                <TextoOpciones>Administrar</TextoOpciones>
+                <TextoOpciones>Usuarios</TextoOpciones>
+              </ListItemText>
+            </ListItem>
+          </NavLink>
+
+          <NavLink to="/usuarios">
+            <ListItem button onClick={handleOpenMenu}>
+              <ListItemIcon>
+                <SquareFootRoundedIcon />
+              </ListItemIcon>
+              <ListItemText>
+                <TextoOpciones>Administrar</TextoOpciones>
+                <TextoOpciones>Caja</TextoOpciones>
+              </ListItemText>
+            </ListItem>
+          </NavLink>
+
           <NavLink to="/caja">
             <ListItem button onClick={handleOpenMenu}>
               <ListItemIcon>
@@ -94,17 +118,6 @@ const Lista = () => {
               </ListItemIcon>
               <ListItemText>
                 <TextoOpciones>Pizzas</TextoOpciones>
-              </ListItemText>
-            </ListItem>
-          </NavLink>
-
-          <NavLink to="/usuarios">
-            <ListItem button onClick={handleOpenMenu}>
-              <ListItemIcon>
-                <SquareFootRoundedIcon />
-              </ListItemIcon>
-              <ListItemText>
-                <TextoOpciones>Usuarios</TextoOpciones>
               </ListItemText>
             </ListItem>
           </NavLink>

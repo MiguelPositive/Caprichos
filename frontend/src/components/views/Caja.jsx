@@ -37,8 +37,9 @@ import EditarPreventa_boton from "../buttons/EditarPreventa_boton";
 import EliminarPreventa_boton from "../buttons/EliminarPreventa_boton";
 import ConfirmarPreventa_boton from "../buttons/ConfirmarPreventa_boton";
 import ImprimirFactura from "../buttons/ImprimirFactura";
-import moment from "moment";
 import logo from "../../img/Logo.png";
+import moment from "moment";
+import Buscador from "../buttons/Buscador";
 import "animate.css";
 import "../../styles/Caja.css";
 
@@ -523,7 +524,7 @@ const Caja = () => {
           </Paper>
         </div>
 
-        <div className="col-xs-12 col-sm-12 col-md-7 col-lg-7 ">
+        <div className="col-xs-12 col-sm-12 col-md-7 col-lg-7 datos-venta">
           <Paper
             elevation={4}
             sx={{
@@ -532,14 +533,18 @@ const Caja = () => {
               padding: "1rem",
               borderRadius: "1rem",
             }}
-            className="container datos-venta"
+            className="container table-responsive"
           >
             <div className="row">
-              <div className="col-sm-12 col-md-12 col-lg-12 ">
+              <div className="col-sm-6 col-md-6 col-lg-6 btn-agregar-pizza">
                 <AgregarProducto
                   titulo={"Agregar Pizza"}
                   accion={AbrirModalPizzas}
                 />
+              </div>
+
+              <div className="col-sm-6 col-md-6 col-lg-6 btn-buscarventa-pizza">
+                <Buscador producto={"ventas"} />
               </div>
             </div>
 
@@ -718,7 +723,7 @@ const Caja = () => {
           <Paper
             elevation={6}
             className="table-responsive"
-            sx={{ borderRadius: "1rem", marginBottom: "4rem" }}
+            sx={{ borderRadius: "1rem", marginBottom: "4rem", height: "20rem" }}
           >
             {/* Tabla de ventas y preventas */}
             <TableContainer>
@@ -738,7 +743,7 @@ const Caja = () => {
                       <b>Cedula</b>
                     </TableCell>
                     <TableCell align="center">
-                      <b>Valor Compra</b>
+                      <b>Valor Venta</b>
                     </TableCell>
                     <TableCell align="center">
                       <b>Opciones</b>
