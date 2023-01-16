@@ -21,7 +21,7 @@ import VisibilityOffRoundedIcon from "@mui/icons-material/VisibilityOffRounded";
 import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
 
 //archivos externos
-import { NombreContexto } from "../context/ContextApp";
+import { store } from "../context/ContextApp";
 import "animate.css";
 import "../../styles/Login.css";
 
@@ -54,7 +54,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   const { cookies, CrearCookie, HacerValidacionUsuario, HacerValidacionCargo } =
-    useContext(NombreContexto);
+    useContext(store);
 
   const handleChangeUsuario = (e) => {
     setUsuario(e.target.value);

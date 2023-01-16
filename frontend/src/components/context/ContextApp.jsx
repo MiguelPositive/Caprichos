@@ -7,7 +7,7 @@ import Cookies from "universal-cookie";
 import axios from "axios";
 import exito from "../alerts/exito.js";
 
-export const NombreContexto = createContext();
+export const store = createContext();
 const ContextApp = (props) => {
   const cookies = new Cookies();
 
@@ -18,9 +18,14 @@ const ContextApp = (props) => {
   //abrir menu lateral
   const [abrirMenu, setAbrirMenu] = useState(false);
 
+  //variables de usuarios
+
+  const [usuarios, setUsuarios] = useState([]);
+  const [usuariosCopia, setUsuariosCopia] = useState([]);
+
   //variables de productos crudos
-  const [productosCrudos, setProductosCrudos] = useState([]);
-  const [productosCrudosCopia, setProductosCrudosCopia] = useState([]);
+  const [raws, setRaws] = useState([]);
+  const [rawsCopy, setRawsCopy] = useState([]);
 
   //variables de productos procesados
   const [productosProcesados, setProductosProcesados] = useState([]);
@@ -58,6 +63,37 @@ const ContextApp = (props) => {
 
   //funciones de usuarios
 
+  const ConsultarUsuarios = async () => {
+    try {
+      const res = axios.get("http://192.168.18.222:4000/consultar/usuarios");
+      setUsuarios((await res).data.usuarios);
+      setUsuariosCopia((await res).data.usuarios);
+    } catch (error) {
+      console.log(
+        `ocurrio un error en el frontend al intentar  consultar los usuarios: ${error}`
+      );
+    }
+  };
+
+  const AgregarUsuario = async (usuario, contrasena, cargo) => {
+    try {
+      const res = axios.post("http://192.168.18.222:4000/agregar/usuario", {
+        usuario,
+        contrasena,
+        cargo,
+      });
+
+      if ((await res).data.mensaje) {
+        exito();
+        ConsultarUsuarios();
+      }
+    } catch (error) {
+      console.log(
+        `ocurrio un error en el frontend al intentar agregar el usuario: ${error}`
+      );
+    }
+  };
+
   const HacerValidacionUsuario = async (usuario, contrasena) => {
     try {
       const res = await axios.post(
@@ -91,25 +127,67 @@ const ContextApp = (props) => {
     }
   };
 
+  const EditarUsuario = async (_id, usuario, contrasena, cargo) => {
+    try {
+      const res = axios.post("http://192.168.18.222:4000/editar/usuario", {
+        _id,
+        usuario,
+        contrasena,
+        cargo,
+      });
+
+      if ((await res).data.mensaje) {
+        exito();
+        ConsultarUsuarios();
+      }
+    } catch (error) {
+      console.log(
+        `ocurrio un error en el frontend al intentar editar el usuario: ${u}`
+      );
+    }
+  };
+
+  const EliminarUsuario = async (_id) => {
+    const res = axios.post("http://192.168.18.222:4000/eliminar/usuario", {
+      _id,
+    });
+
+    if ((await res).data.mensaje) {
+      exito();
+      ConsultarUsuarios();
+    }
+  };
+
+  const BuscarUsuarios = (usuario) => {
+    if (usuario == "") {
+      setUsuariosCopia(usuarios);
+    } else {
+      let resultados = usuarios.filter((iterador) => {
+        if (iterador.usuario.toLowerCase().includes(usuario)) {
+          return iterador;
+        }
+      });
+
+      setUsuariosCopia(resultados);
+    }
+  };
+
   //funciones de crudos
 
-  const AgregarCrudo = async (v1, v2, v3) => {
+  const createRaw = async ({ name, totalWeight, portionWeight }) => {
     try {
-      const req = axios.post(
-        "http://192.168.18.222:4000/agregar/crudo",
+      await axios.post(
+        "http://192.168.18.222:4000/create/raw",
 
         {
-          nombre: v1,
-          peso: v2,
-          gramosPorcion: v3,
-          cantidadPorciones: v2 / v3,
+          name,
+          totalWeight,
+          portionWeight,
+          portionsQuantity: totalWeight / portionWeight,
         }
       );
-
-      if ((await req).data.mensaje == true) {
-        exito();
-        ConsultarCrudos();
-      }
+      exito();
+      getRaws();
     } catch (error) {
       console.log(
         `ocurrio un error en el frontend al intentar enviar los datos del producto crudo hacia el backend: ${error}`
@@ -117,14 +195,14 @@ const ContextApp = (props) => {
     }
   };
 
-  const ConsultarCrudos = async () => {
+  const getRaws = async () => {
     try {
-      const res = await axios.get(
-        "http://192.168.18.222:4000/consultar/crudos"
-      );
+      const {
+        data: { raws },
+      } = await axios.get("http://192.168.18.222:4000/get/raws");
 
-      setProductosCrudos(res.data.crudos);
-      setProductosCrudosCopia(res.data.crudos);
+      setRaws(raws);
+      setRawsCopy(raws);
     } catch (error) {
       console.log(
         `ocurrio un error al intentar consultar los datos de los productos crudos en el frontend: ${error}`
@@ -132,20 +210,18 @@ const ContextApp = (props) => {
     }
   };
 
-  const EditarCrudo = async (id, nombree, pesoo, gramosporcion) => {
+  const updateRaw = async (_id, name, totalWeight, portionWeight) => {
     try {
-      const res = await axios.post("http://192.168.18.222:4000/editar/crudo", {
-        _id: id,
-        nombre: nombree,
-        peso: pesoo,
-        gramosPorcion: gramosporcion,
-        cantidadPorciones: pesoo / gramosporcion,
+      await axios.post("http://192.168.18.222:4000/update/raw", {
+        _id,
+        name,
+        totalWeight,
+        portionWeight,
+        portionsQuantity: totalWeight / portionWeight,
       });
 
-      if ((await res).data.mensaje) {
-        exito();
-        ConsultarCrudos();
-      }
+      exito();
+      getRaws();
     } catch (error) {
       console.log(
         `ocurrio un error en el frontend al intentar enviar los datos del producto crudo para ser editado: ${error}`
@@ -153,16 +229,14 @@ const ContextApp = (props) => {
     }
   };
 
-  const EliminarCrudo = async (id) => {
+  const deleteRaw = async (_id) => {
     try {
-      const res = axios.post("http://192.168.18.222:4000/eliminar/crudo", {
-        _id: id,
+      await axios.post("http://192.168.18.222:4000/delete/raw", {
+        _id,
       });
 
-      if ((await res).data.mensaje) {
-        exito();
-        ConsultarCrudos();
-      }
+      exito();
+      getRaws();
     } catch (error) {
       console.log(
         `ocurrio un error en el frontend al intentar eliminar el crudo. ${error}`
@@ -170,26 +244,20 @@ const ContextApp = (props) => {
     }
   };
 
-  const BuscarCrudos = (elemento) => {
-    let resultadoBusqueda = productosCrudos.filter((iterador) => {
+  const searchRaws = (element) => {
+    let filteredRaws = raws.filter((iterador) => {
       if (
-        iterador.nombre
-          .toString()
-          .toLowerCase()
-          .includes(elemento.toLowerCase())
+        iterador.name.toString().toLowerCase().includes(element.toLowerCase())
       ) {
         return iterador;
       }
     });
 
-    console.log(elemento);
-    if (elemento == "") {
-      setProductosCrudosCopia(productosCrudos);
+    if (element == "") {
+      setRawsCopy(raws);
     } else {
-      setProductosCrudosCopia(resultadoBusqueda);
+      setRawsCopy(filteredRaws);
     }
-
-    console.log(resultadoBusqueda);
   };
 
   //funciones de procesados
@@ -520,22 +588,29 @@ const ContextApp = (props) => {
   //funciones de caja
 
   return (
-    <NombreContexto.Provider
+    <store.Provider
       value={{
+        abrirMenu: abrirMenu,
+        handleOpenMenu: handleOpenMenu,
         cookies: cookies,
         CrearCookie: CrearCookie,
         EliminarCookie: EliminarCookie,
+        AgregarUsuario: AgregarUsuario,
+        ConsultarUsuarios: ConsultarUsuarios,
+        EditarUsuario: EditarUsuario,
+        EliminarUsuario: EliminarUsuario,
+        BuscarUsuarios: BuscarUsuarios,
+        usuarios: usuarios,
+        usuariosCopia: usuariosCopia,
         HacerValidacionUsuario: HacerValidacionUsuario,
         HacerValidacionCargo: HacerValidacionCargo,
-        abrirMenu: abrirMenu,
-        handleOpenMenu: handleOpenMenu,
-        AgregarCrudo: AgregarCrudo,
-        ConsultarCrudos: ConsultarCrudos,
-        productosCrudos: productosCrudos,
-        productosCrudosCopia: productosCrudosCopia,
-        EditarCrudo: EditarCrudo,
-        EliminarCrudo: EliminarCrudo,
-        BuscarCrudos: BuscarCrudos,
+        createRaw: createRaw,
+        getRaws: getRaws,
+        updateRaw: updateRaw,
+        deleteRaw: deleteRaw,
+        searchRaws: searchRaws,
+        raws: raws,
+        rawsCopy: rawsCopy,
         AgregarProcesado: AgregarProcesado,
         ConsultarProcesados: ConsultarProcesados,
         productosProcesados: productosProcesados,
@@ -561,7 +636,7 @@ const ContextApp = (props) => {
       }}
     >
       {props.children}
-    </NombreContexto.Provider>
+    </store.Provider>
   );
 };
 

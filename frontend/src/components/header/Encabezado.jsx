@@ -19,7 +19,7 @@ import { amber } from "@mui/material/colors";
 import ViewHeadlineRoundedIcon from "@mui/icons-material/ViewHeadlineRounded";
 
 //archivos externos
-import { NombreContexto } from "../context/ContextApp";
+import { store } from "../context/ContextApp";
 import "animate.css";
 
 const MenuPerzonalizado = styled(Toolbar)({
@@ -50,8 +50,7 @@ const BotonLogout = styled(Button)({
 });
 
 const Encabezado = () => {
-  const { cookies, EliminarCookie, handleOpenMenu } =
-    useContext(NombreContexto);
+  const { cookies, EliminarCookie, handleOpenMenu } = useContext(store);
 
   let cargo = cookies.get("cargo");
 

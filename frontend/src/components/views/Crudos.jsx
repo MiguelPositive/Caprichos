@@ -22,99 +22,84 @@ import { FaAppleAlt } from "react-icons/fa";
 import NumbersIcon from "@mui/icons-material/Numbers";
 
 // archivos externos
+import { store } from "../context/ContextApp";
 import AgregarProducto from "../buttons/AgregarProducto";
-import Editar from "../buttons/Editar";
 import EliminarCerrar from "../buttons/EliminarCerrar";
 import Guardar from "../buttons/Guardar";
 import AcccionesTabla from "../actions/AcccionesTabla";
-import { NombreContexto } from "../context/ContextApp";
-import exito from "../alerts/exito";
 import Buscador from "../buttons/Buscador";
 import "animate.css";
 import "../../styles/Crudos.css";
 
 const Crudos = () => {
-  const {
-    AgregarCrudo,
-    ConsultarCrudos,
-    productosCrudosCopia,
-    EditarCrudo,
-    EliminarCrudo,
-  } = useContext(NombreContexto);
+  const { createRaw, getRaws, rawsCopy, updateRaw, deleteRaw } =
+    useContext(store);
 
-  const [idcrudo, setIdCrudo] = useState("");
-  const [nombre, setNombre] = useState("");
-  const [peso, setPeso] = useState(0);
-  const [gramosPorcion, setGramosPorcion] = useState(0);
-  const [abrirformulario, setAbrirFormulario] = useState(false);
-  const [activadorEditor, setActivarEditor] = useState(false);
-  const [actualizar, setActualizar] = useState(0);
+  const [id, setId] = useState("");
+  const [name, setName] = useState("");
+  const [totalWeight, setTotalWeight] = useState(0);
+  const [porsionWeight, setporsionWeight] = useState(0);
 
-  const handleChangeNombre = (e) => {
-    setNombre(e.target.value);
+  const [modal, setModal] = useState(false);
+
+  const [modeEditor, setModeEditor] = useState(false);
+
+  const Clean = () => {
+    setName("");
+    setTotalWeight(null);
+    setporsionWeight(null);
   };
 
-  const handleChangePeso = (e) => {
-    setPeso(e.target.value);
+  const handleChangeName = (e) => {
+    setName(e.target.value);
   };
 
-  const handleChangeGramosPorcion = (e) => {
-    setGramosPorcion(e.target.value);
+  const handleChangeTotalWeight = (e) => {
+    setTotalWeight(parseInt(e.target.value));
   };
 
-  const handleSubmit = async () => {
-    handleAbrirFormulario();
-    await AgregarCrudo(nombre, peso, gramosPorcion);
-    setActualizar(actualizar + 1);
+  const handleChangePorsionWeight = (e) => {
+    setporsionWeight(parseInt(e.target.value));
   };
 
-  const handleAbrirFormulario = () => {
-    setAbrirFormulario(!abrirformulario);
-  };
-
-  const handleAbrirModoEditor = () => {
-    setActivarEditor(true);
-  };
-
-  const handleCerrarModoEditor = () => {
-    setActivarEditor(false);
-  };
-
-  const ConseguirElementos = (id, nombree, pesoo, gramosporcionn) => {
-    setIdCrudo(id);
-    setNombre(nombree);
-    setPeso(pesoo);
-    setGramosPorcion(gramosporcionn);
-  };
-
-  const handleEditar = async (id, nombree, pesoo, gramosporcion) => {
-    if ((await EditarCrudo(id, nombree, pesoo, gramosporcion)) == true) {
-      setActualizar(actualizar + 1);
-      handleAbrirFormulario();
-      exito();
+  const handleClickOpenModal = () => {
+    if (modeEditor) {
+      setModeEditor(false);
     }
+
+    Clean();
+    setModal(!modal);
   };
 
-  const handleEliminar = async (id) => {
-    if (await EliminarCrudo(id)) {
-      exito();
-      setActualizar(actualizar + 1);
+  const update = (id, nombre, peso, gramosporcion) => {
+    setModeEditor(true);
+    handleClickOpenModal();
+    setId(id);
+    setName(nombre);
+    setTotalWeight(peso);
+    setporsionWeight(gramosporcion);
+  };
+
+  const handleSubmit = () => {
+    if (modeEditor) {
+      handleClickOpenModal();
+      updateRaw(id, name, totalWeight, porsionWeight);
+    } else {
+      handleClickOpenModal();
+
+      const raw = {
+        name,
+        totalWeight,
+        porsionWeight,
+      };
+
+      createRaw(raw);
     }
-  };
-
-  const handleLimpiar = () => {
-    setNombre("");
-    setPeso(null);
-    setGramosPorcion(null);
   };
 
   useEffect(() => {
-    ConsultarCrudos();
+    getRaws();
   }, []);
-
-  useEffect(() => {
-    ConsultarCrudos();
-  }, [actualizar]);
 
   return (
     <div
@@ -134,11 +119,7 @@ const Crudos = () => {
             <div className="col-sm-2 col-md-2 col-lg-2 colx-xl-2 contenedor-agregar">
               <AgregarProducto
                 titulo={"Agregar Crudo"}
-                accion={() => {
-                  handleLimpiar();
-                  handleCerrarModoEditor();
-                  handleAbrirFormulario();
-                }}
+                accion={handleClickOpenModal}
               />
             </div>
             <div className="col-sm-8 col-md-9 col-lg-9 col-xl-10 contenedor-buscar">
@@ -177,34 +158,32 @@ const Crudos = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {productosCrudosCopia.map((iterador) => (
-                    <TableRow key={iterador._id}>
+                  {rawsCopy.map((raw) => (
+                    <TableRow key={raw._id}>
                       <TableCell component="th" align="center">
-                        {iterador.nombre}
+                        {raw.name}
                       </TableCell>
                       <TableCell component="th" align="center">
-                        {iterador.peso}
+                        {raw.totalWeight}
                       </TableCell>
                       <TableCell component="th" align="center">
-                        {iterador.gramosPorcion}
+                        {raw.portionWeight}
                       </TableCell>
                       <TableCell component="th" align="center">
-                        {iterador.cantidadPorciones}
+                        {raw.portionsQuantity}
                       </TableCell>
                       <TableCell component="th" align="center">
                         <AcccionesTabla
                           funcionEditar={() => {
-                            handleAbrirModoEditor();
-                            handleAbrirFormulario();
-                            ConseguirElementos(
-                              iterador._id,
-                              iterador.nombre,
-                              iterador.peso,
-                              iterador.gramosPorcion
+                            update(
+                              raw._id,
+                              raw.name,
+                              raw.totalWeight,
+                              raw.portionWeight
                             );
                           }}
                           funcionEliminar={() => {
-                            handleEliminar(iterador._id);
+                            deleteRaw(raw._id);
                           }}
                         />
                       </TableCell>
@@ -217,14 +196,12 @@ const Crudos = () => {
         </div>
       </div>
 
-      {/* Modal agregar usuario */}
-
       <Modal
-        open={abrirformulario}
+        open={modal}
         className="animate__animated animate__fadeIn"
-        onClose={handleAbrirFormulario}
+        onClose={handleClickOpenModal}
       >
-        <Fade in={abrirformulario} timeout={500}>
+        <Fade in={modal} timeout={500}>
           <Paper
             elevation={6}
             className="container modal-sinfocus"
@@ -240,7 +217,7 @@ const Crudos = () => {
             <div className="row">
               <h5 style={{ width: "100%", textAlign: "center" }}>
                 <b>
-                  {activadorEditor
+                  {modeEditor
                     ? "Editar Producto Crudo"
                     : "Agregar Producto Crudo"}
                 </b>
@@ -252,8 +229,8 @@ const Crudos = () => {
                 placeholder="Nombre Crudo"
                 variant="standard"
                 fullWidth
-                onChange={handleChangeNombre}
-                defaultValue={nombre}
+                onChange={handleChangeName}
+                value={name || ""}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -270,8 +247,8 @@ const Crudos = () => {
                 type="number"
                 variant="standard"
                 fullWidth
-                onChange={handleChangePeso}
-                defaultValue={peso}
+                onChange={handleChangeTotalWeight}
+                value={totalWeight || ""}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -288,8 +265,8 @@ const Crudos = () => {
                 type="number"
                 variant="standard"
                 fullWidth
-                onChange={handleChangeGramosPorcion}
-                defaultValue={gramosPorcion}
+                onChange={handleChangePorsionWeight}
+                value={porsionWeight || ""}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -307,19 +284,11 @@ const Crudos = () => {
               <div className="mr-4">
                 <EliminarCerrar
                   eliminar={false}
-                  accion={handleAbrirFormulario}
+                  accion={handleClickOpenModal}
                 />
               </div>
               <div>
-                <Guardar
-                  accion={
-                    activadorEditor
-                      ? () => {
-                          handleEditar(idcrudo, nombre, peso, gramosPorcion);
-                        }
-                      : handleSubmit
-                  }
-                />
+                <Guardar accion={handleSubmit} />
               </div>
             </div>
           </Paper>

@@ -19,7 +19,7 @@ import { amber } from "@mui/material/colors";
 import ViewHeadlineRoundedIcon from "@mui/icons-material/ViewHeadlineRounded";
 
 //archivos externos
-import { NombreContexto } from "../context/ContextApp";
+import { store } from "../context/ContextApp";
 
 const MenuPerzonalizado = styled(Toolbar)({
   backgroundColor: "#1E1E1E",
@@ -42,8 +42,7 @@ const BotonLogout = styled(Button)({
 });
 
 const EncabezadoCajero = () => {
-  const { cookies, EliminarCookie, handleOpenMenu } =
-    useContext(NombreContexto);
+  const { cookies, EliminarCookie, handleOpenMenu } = useContext(store);
 
   return (
     <div>

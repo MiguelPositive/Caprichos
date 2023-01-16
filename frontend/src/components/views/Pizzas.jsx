@@ -35,7 +35,7 @@ import Buscador from "../buttons/Buscador";
 import AgregarIngredientes from "../buttons/AgregarIngredientes";
 import EliminarCerrar from "../buttons/EliminarCerrar";
 import Guardar from "../buttons/Guardar";
-import { NombreContexto } from "../context/ContextApp";
+import { store } from "../context/ContextApp";
 import AcccionesTabla from "../actions/AcccionesTabla";
 import "animate.css";
 
@@ -48,7 +48,7 @@ const Pizzas = () => {
     pizzasCopia,
     EditarPizza,
     EliminarPizza,
-  } = useContext(NombreContexto);
+  } = useContext(store);
 
   const [modalPizzas, setModalPizzas] = useState(false);
   const [modalProcesados, setModalProcesados] = useState(false);

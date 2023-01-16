@@ -1,19 +1,17 @@
 const express = require("express");
 const {
-  AgregarCrudo,
-  ConsultarCrudos,
-  EditarCrudo,
-  EliminarCrudo,
-  BuscarCrudos,
+  createRaw,
+  getRaws,
+  updateRaw,
+  deleteRaw,
 } = require("../controllers/CrudosControlador.js");
 
 const CrudosRouter = express.Router();
 
-CrudosRouter.post("/agregar/crudo", AgregarCrudo);
-CrudosRouter.get("/consultar/crudos", ConsultarCrudos);
-CrudosRouter.post("/editar/crudo", EditarCrudo);
-CrudosRouter.post("/eliminar/crudo", EliminarCrudo);
-CrudosRouter.post("/buscar/crudos", BuscarCrudos);
+CrudosRouter.post("/create/raw", createRaw);
+CrudosRouter.get("/get/raws", getRaws);
+CrudosRouter.post("/update/raw", updateRaw);
+CrudosRouter.post("/delete/raw", deleteRaw);
 
 module.exports = {
   CrudosRouter,

@@ -1,27 +1,27 @@
 const mongoose = require("mongoose");
 
-const CrudosEsquema = mongoose.Schema({
-  nombre: {
+const rawsSchema = mongoose.Schema({
+  name: {
     type: String,
     trim: false,
   },
 
-  peso: {
+  totalWeight: {
     type: Number,
     trim: true,
   },
 
-  gramosPorcion: {
+  portionWeight: {
     type: Number,
     trim: true,
   },
 
-  cantidadPorciones: {
+  portionsQuantity: {
     type: Number,
     trim: true,
   },
 });
 
-const modeloCrudos = mongoose.model("crudos", CrudosEsquema);
+const rawsModel = mongoose.model("crudos", rawsSchema);
 
-module.exports = { modeloCrudos };
+module.exports = { rawsModel };

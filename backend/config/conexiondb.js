@@ -1,3 +1,10 @@
+/*estoy usando el link de conexion de la version 2.2 de node js,
+ porque el link de conexion que estaba usando (version 4.1 or later),
+ generaba errores imprevistos.
+ 
+ Ademas, como el link de conexion version 2.2 es viejo debo implementar
+ la linea de codigo mongoose stric query*/
+
 const mongoose = require("mongoose");
 
 const conectarDb = async () => {

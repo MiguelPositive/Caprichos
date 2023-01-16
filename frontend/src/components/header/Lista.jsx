@@ -20,11 +20,11 @@ import PointOfSaleRoundedIcon from "@mui/icons-material/PointOfSaleRounded";
 import TurnLeftRoundedIcon from "@mui/icons-material/TurnLeftRounded";
 
 //archivos externos
-import { NombreContexto } from "../context/ContextApp";
+import { store } from "../context/ContextApp";
 import "../../styles/Lista.css";
 
 const Lista = () => {
-  const { abrirMenu, handleOpenMenu } = useContext(NombreContexto);
+  const { abrirMenu, handleOpenMenu } = useContext(store);
 
   const [subMenu, setSubMenu] = useState(null);
 

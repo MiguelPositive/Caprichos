@@ -1,19 +1,18 @@
-const { modeloCrudos } = require("../models/CrudosModelo.js");
+const { rawsModel } = require("../models/CrudosModelo.js");
 
-const AgregarCrudo = async (req, res) => {
+const createRaw = async (req, res) => {
   try {
-    let { nombre, peso, gramosPorcion, cantidadPorciones } = req.body;
+    let { name, totalWeight, portionWeight, portionsQuantity } = req.body;
 
-    const crudoNuevo = await modeloCrudos({
-      nombre,
-      peso,
-      gramosPorcion,
-      cantidadPorciones,
+    const newRaw = await rawsModel({
+      name,
+      totalWeight,
+      portionWeight,
+      portionsQuantity,
     });
 
-    await crudoNuevo.save();
-
-    res.json({ mensaje: true });
+    await newRaw.save();
+    res.sendStatus(200);
   } catch (error) {
     console.log(
       `ocurrio un error al intentar agregar un nuevo crudo en el backend: ${error}`
@@ -21,10 +20,10 @@ const AgregarCrudo = async (req, res) => {
   }
 };
 
-const ConsultarCrudos = async (req, res) => {
+const getRaws = async (req, res) => {
   try {
-    const crudos = await modeloCrudos.find().lean().exec();
-    res.send({ crudos });
+    const raws = await rawsModel.find().lean().exec();
+    res.send({ raws });
   } catch (error) {
     console.log(
       `ocurrio un error al intentar consultar los productos crudos dedesde el backend. ${error}`
@@ -32,23 +31,24 @@ const ConsultarCrudos = async (req, res) => {
   }
 };
 
-const EditarCrudo = async (req, res) => {
-  console.log(req.body.nombre);
+const updateRaw = async (req, res) => {
   try {
-    const crudoEditado = await modeloCrudos.updateOne(
-      { _id: req.body._id },
+    const { _id, name, totalWeight, portionWeight, portionsQuantity } =
+      req.body;
+    await rawsModel.updateOne(
+      { _id },
 
       {
         $set: {
-          nombre: req.body.nombre,
-          peso: req.body.peso,
-          gramosPorcion: req.body.gramosPorcion,
-          cantidadPorciones: req.body.cantidadPorciones,
+          name,
+          totalWeight,
+          portionWeight,
+          portionsQuantity,
         },
       }
     );
 
-    await res.json({ mensaje: true });
+    res.sendStatus(200);
   } catch (error) {
     console.log(
       `ocurrio un error en el backend al intentar editar el crudo: ${error}`
@@ -56,12 +56,13 @@ const EditarCrudo = async (req, res) => {
   }
 };
 
-const EliminarCrudo = async (req, res) => {
+const deleteRaw = async (req, res) => {
   try {
     const { _id } = req.body;
 
-    const eliminado = await modeloCrudos.deleteOne({ _id });
-    res.json({ mensaje: true });
+    await rawsModel.deleteOne({ _id });
+
+    await res.sendStatus(200);
   } catch (error) {
     console.log(
       `ocurrio un error en el backend al intentar eliminar el crudo: ${error}`
@@ -69,25 +70,9 @@ const EliminarCrudo = async (req, res) => {
   }
 };
 
-const BuscarCrudos = async (req, res) => {
-  try {
-    const { nombre } = req.body;
-
-    const crudosencontrados = await modeloCrudos.find({ nombre: nombre });
-
-    console.log(...crudosencontrados);
-    res.send(...crudosencontrados);
-  } catch (error) {
-    console.log(
-      `ocurrio un error en le backend al buscar los crudos: ${error}`
-    );
-  }
-};
-
 module.exports = {
-  AgregarCrudo,
-  ConsultarCrudos,
-  EditarCrudo,
-  EliminarCrudo,
-  BuscarCrudos,
+  createRaw,
+  getRaws,
+  updateRaw,
+  deleteRaw,
 };

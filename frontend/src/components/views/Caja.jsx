@@ -24,9 +24,9 @@ import PersonIcon from "@mui/icons-material/Person";
 import BadgeIcon from "@mui/icons-material/Badge";
 import PhoneIcon from "@mui/icons-material/Phone";
 import HomeWorkRoundedIcon from "@mui/icons-material/HomeWorkRounded";
-import { NombreContexto } from "../context/ContextApp";
 
 //externos
+import { store } from "../context/ContextApp";
 import Limpiar from "../buttons/Limpiar";
 import EliminarCerrar from "../buttons/EliminarCerrar";
 import Guardar from "../buttons/Guardar";

@@ -1,5 +1,17 @@
 const { modeloUsuarios } = require("../models/UsuariosModelo.js");
 
+const ConsultarUsuarios = async (req, res) => {
+  try {
+    const usuarios = await modeloUsuarios.find().lean().exec();
+
+    res.send({ usuarios });
+  } catch (error) {
+    console.log(
+      `ocurrio un error en el backend al intentar consultar los datos: ${error}`
+    );
+  }
+};
+
 const AgregarUsuario = async (req, res) => {
   try {
     const { usuario, contrasena, cargo } = req.body;
@@ -52,8 +64,42 @@ const ValidarCargo = async (req, res) => {
     );
   }
 };
+
+const EditarUsuario = async (req, res) => {
+  try {
+    const { _id, usuario, contrasena, cargo } = req.body;
+    await modeloUsuarios.updateOne(
+      { _id },
+      { $set: { usuario, contrasena, cargo } }
+    );
+
+    res.json({ mensaje: true });
+  } catch (error) {
+    console.log(
+      `ocurrio un error en el backend al intentar editar el usuario: ${error}`
+    );
+  }
+};
+
+const EliminarUsuario = async (req, res) => {
+  try {
+    const { _id } = req.body;
+
+    await modeloUsuarios.deleteOne({ _id });
+
+    res.json({ mensaje: true });
+  } catch (error) {
+    console.log(
+      `ocurrio un error en el backend al intentar eliminar el usuario: ${error}`
+    );
+  }
+};
+
 module.exports = {
   AgregarUsuario,
   ValidarUsuario,
   ValidarCargo,
+  ConsultarUsuarios,
+  EditarUsuario,
+  EliminarUsuario,
 };

@@ -1,10 +1,10 @@
 import React from "react";
 import { useContext } from "react";
-import { NombreContexto } from "../components/context/ContextApp";
+import { store } from "../components/context/ContextApp";
 import { Navigate, Outlet } from "react-router-dom";
 
 const ProtectedRoute = () => {
-  const { cookies } = useContext(NombreContexto);
+  const { cookies } = useContext(store);
 
   let isLogeado = cookies.get("logeado");
   if (!isLogeado) {

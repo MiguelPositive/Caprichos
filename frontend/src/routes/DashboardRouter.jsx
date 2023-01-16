@@ -10,11 +10,11 @@ import Crudos from "../components/views/Crudos";
 import Procesados from "../components/views/Procesados";
 import Usuarios from "../components/views/Usuarios";
 import { useContext } from "react";
-import { NombreContexto } from "../components/context/ContextApp";
+import { store } from "../components/context/ContextApp";
 import Lista from "../components/header/Lista";
 
 const DashboardRouter = () => {
-  const { cookies } = useContext(NombreContexto);
+  const { cookies } = useContext(store);
 
   let cargo = cookies.get("cargo");
 

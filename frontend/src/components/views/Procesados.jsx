@@ -33,9 +33,8 @@ import AgregarProducto from "../buttons/AgregarProducto";
 import EliminarCerrar from "../buttons/EliminarCerrar";
 import AgregarIngredientes from "../buttons/AgregarIngredientes";
 import Guardar from "../buttons/Guardar";
-import { NombreContexto } from "../context/ContextApp";
+import { store } from "../context/ContextApp";
 import Buscador from "../buttons/Buscador";
-import exito from "../alerts/exito";
 import AcccionesTabla from "../actions/AcccionesTabla";
 
 const Procesados = () => {
@@ -48,7 +47,7 @@ const Procesados = () => {
     productosProcesadosCopia,
     EditarProcesado,
     EliminarProcesado,
-  } = useContext(NombreContexto);
+  } = useContext(store);
 
   const [modalProcesado, setModalProcesado] = useState(false);
   const [modalIngredientes, setModalIngredientes] = useState(false);
