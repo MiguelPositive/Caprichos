@@ -37,8 +37,8 @@ const Crudos = () => {
 
   const [id, setId] = useState("");
   const [name, setName] = useState("");
-  const [totalWeight, setTotalWeight] = useState(0);
-  const [porsionWeight, setporsionWeight] = useState(0);
+  const [totalWeight, setTotalWeight] = useState(null);
+  const [portionWeight, setPortionWeight] = useState(null);
 
   const [modal, setModal] = useState(false);
 
@@ -47,7 +47,8 @@ const Crudos = () => {
   const Clean = () => {
     setName("");
     setTotalWeight(null);
-    setporsionWeight(null);
+    setPortionWeight(null);
+    setModeEditor(false);
   };
 
   const handleChangeName = (e) => {
@@ -59,41 +60,47 @@ const Crudos = () => {
   };
 
   const handleChangePorsionWeight = (e) => {
-    setporsionWeight(parseInt(e.target.value));
+    setPortionWeight(parseInt(e.target.value));
   };
 
   const handleClickOpenModal = () => {
-    if (modeEditor) {
-      setModeEditor(false);
-    }
-
-    Clean();
     setModal(!modal);
   };
 
-  const update = (id, nombre, peso, gramosporcion) => {
-    setModeEditor(true);
+  const handleClickClose = () => {
     handleClickOpenModal();
-    setId(id);
-    setName(nombre);
-    setTotalWeight(peso);
-    setporsionWeight(gramosporcion);
+    setTimeout(() => {
+      Clean();
+    }, 350);
+  };
+
+  const update = (raw) => {
+    const { _id, name, totalWeight, portionWeight } = raw;
+    setModeEditor(true);
+    setId(_id);
+    setName(name);
+    setTotalWeight(totalWeight);
+    setPortionWeight(portionWeight);
+    handleClickOpenModal();
   };
 
   const handleSubmit = () => {
+    const raw = {
+      _id: id,
+      name,
+      totalWeight,
+      portionWeight,
+    };
+
     if (modeEditor) {
       handleClickOpenModal();
-      updateRaw(id, name, totalWeight, porsionWeight);
+      updateRaw(raw);
+      Clean();
     } else {
       handleClickOpenModal();
-
-      const raw = {
-        name,
-        totalWeight,
-        porsionWeight,
-      };
-
       createRaw(raw);
+
+      Clean();
     }
   };
 
@@ -175,12 +182,7 @@ const Crudos = () => {
                       <TableCell component="th" align="center">
                         <AcccionesTabla
                           funcionEditar={() => {
-                            update(
-                              raw._id,
-                              raw.name,
-                              raw.totalWeight,
-                              raw.portionWeight
-                            );
+                            update(raw);
                           }}
                           funcionEliminar={() => {
                             deleteRaw(raw._id);
@@ -199,7 +201,7 @@ const Crudos = () => {
       <Modal
         open={modal}
         className="animate__animated animate__fadeIn"
-        onClose={handleClickOpenModal}
+        onClose={handleClickClose}
       >
         <Fade in={modal} timeout={500}>
           <Paper
@@ -266,7 +268,7 @@ const Crudos = () => {
                 variant="standard"
                 fullWidth
                 onChange={handleChangePorsionWeight}
-                value={porsionWeight || ""}
+                value={portionWeight || ""}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -282,10 +284,7 @@ const Crudos = () => {
               style={{ display: "flex", justifyContent: "center" }}
             >
               <div className="mr-4">
-                <EliminarCerrar
-                  eliminar={false}
-                  accion={handleClickOpenModal}
-                />
+                <EliminarCerrar eliminar={false} accion={handleClickClose} />
               </div>
               <div>
                 <Guardar accion={handleSubmit} />

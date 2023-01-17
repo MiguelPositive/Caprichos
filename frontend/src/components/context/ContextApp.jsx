@@ -28,8 +28,8 @@ const ContextApp = (props) => {
   const [rawsCopy, setRawsCopy] = useState([]);
 
   //variables de productos procesados
-  const [productosProcesados, setProductosProcesados] = useState([]);
-  const [productosProcesadosCopia, setProductosProcesadosCopia] = useState([]);
+  const [processed, setprocessed] = useState([]);
+  const [processedCopy, setprocessedCopy] = useState([]);
 
   //variables de pizzas
 
@@ -118,7 +118,6 @@ const ContextApp = (props) => {
         usuario,
       });
 
-      // console.log((await res).data.cargo);
       return (await res).data.cargo;
     } catch (error) {
       console.log(
@@ -172,8 +171,6 @@ const ContextApp = (props) => {
     }
   };
 
-  //funciones de crudos
-
   const createRaw = async ({ name, totalWeight, portionWeight }) => {
     try {
       await axios.post(
@@ -210,7 +207,7 @@ const ContextApp = (props) => {
     }
   };
 
-  const updateRaw = async (_id, name, totalWeight, portionWeight) => {
+  const updateRaw = async ({ _id, name, totalWeight, portionWeight }) => {
     try {
       await axios.post("http://192.168.18.222:4000/update/raw", {
         _id,
@@ -260,23 +257,16 @@ const ContextApp = (props) => {
     }
   };
 
-  //funciones de procesados
-
-  const AgregarProcesado = async (nombre, cantidad, ingredientes) => {
+  const createProcessed = async ({ name, quantity, ingredients }) => {
     try {
-      const res = await axios.post(
-        "http://192.168.18.222:4000/agregar/procesado",
-        {
-          nombre,
-          cantidad,
-          ingredientes,
-        }
-      );
+      await axios.post("http://192.168.18.222:4000/create/processed", {
+        name,
+        quantity,
+        ingredients,
+      });
 
-      if ((await res).data.mensaje) {
-        exito();
-        ConsultarProcesados();
-      }
+      exito();
+      getProcessed();
     } catch (error) {
       console.log(
         `ocurrio un error en el frontend al agregar un producto procesado: ${error} `
@@ -284,14 +274,14 @@ const ContextApp = (props) => {
     }
   };
 
-  const ConsultarProcesados = async () => {
+  const getProcessed = async () => {
     try {
-      const res = await axios.get(
-        "http://192.168.18.222:4000/consultar/procesados"
-      );
+      const {
+        data: { processed },
+      } = await axios.get("http://192.168.18.222:4000/get/processed");
 
-      setProductosProcesados((await res).data.procesados);
-      setProductosProcesadosCopia((await res).data.procesados);
+      setprocessed(processed);
+      setprocessedCopy(processed);
     } catch (error) {
       console.log(
         `ocurrio un error en el frotend al intentar consultar los productos procesados: ${error}`
@@ -299,19 +289,17 @@ const ContextApp = (props) => {
     }
   };
 
-  const EditarProcesado = async (_id, nombre, cantidad, ingredientes) => {
+  const updateProcessed = async ({ _id, name, quantity, ingredients }) => {
     try {
-      const res = axios.post("http://192.168.18.222:4000/editar/procesado", {
+      axios.post("http://192.168.18.222:4000/update/processed", {
         _id,
-        nombre,
-        cantidad,
-        ingredientes,
+        name,
+        quantity,
+        ingredients,
       });
 
-      if ((await res).data.mensaje) {
-        exito();
-        ConsultarProcesados();
-      }
+      exito();
+      getProcessed();
     } catch (error) {
       console.log(
         `ocurrio un error en el frontend al intentar editar el producto procesado`
@@ -319,16 +307,14 @@ const ContextApp = (props) => {
     }
   };
 
-  const EliminarProcesado = async (_id) => {
+  const deleteProcessed = async (_id) => {
     try {
-      const res = axios.post("http://192.168.18.222:4000/eliminar/procesado", {
+      await axios.post("http://192.168.18.222:4000/delete/processed", {
         _id,
       });
 
-      if ((await res).data.mensaje) {
-        exito();
-        ConsultarProcesados();
-      }
+      exito();
+      getProcessed();
     } catch (error) {
       console.log(
         `ocurrio un error en el frontend al intentar eliminar un producto procesado: ${eliminar}`
@@ -336,23 +322,21 @@ const ContextApp = (props) => {
     }
   };
 
-  const BuscarProcesados = (nombre) => {
-    const elementos = productosProcesados.filter((iterador) => {
+  const searchProcessed = (name) => {
+    const filteredProcessed = processed.filter((processedd) => {
       if (
-        iterador.nombre.toString().toLowerCase().includes(nombre.toLowerCase())
+        processedd.name.toString().toLowerCase().includes(name.toLowerCase())
       ) {
-        return iterador;
+        return processedd;
       }
     });
 
-    if (nombre == "") {
-      setProductosProcesadosCopia(productosProcesados);
+    if (name == "") {
+      setprocessedCopy(processed);
     } else {
-      setProductosProcesadosCopia(elementos);
+      setprocessedCopy(filteredProcessed);
     }
   };
-
-  //funciones de pizzas
 
   const AgregarPizza = async (nombre, precio, ingredientes) => {
     try {
@@ -592,9 +576,11 @@ const ContextApp = (props) => {
       value={{
         abrirMenu: abrirMenu,
         handleOpenMenu: handleOpenMenu,
+
         cookies: cookies,
         CrearCookie: CrearCookie,
         EliminarCookie: EliminarCookie,
+
         AgregarUsuario: AgregarUsuario,
         ConsultarUsuarios: ConsultarUsuarios,
         EditarUsuario: EditarUsuario,
@@ -604,6 +590,7 @@ const ContextApp = (props) => {
         usuariosCopia: usuariosCopia,
         HacerValidacionUsuario: HacerValidacionUsuario,
         HacerValidacionCargo: HacerValidacionCargo,
+
         createRaw: createRaw,
         getRaws: getRaws,
         updateRaw: updateRaw,
@@ -611,13 +598,15 @@ const ContextApp = (props) => {
         searchRaws: searchRaws,
         raws: raws,
         rawsCopy: rawsCopy,
-        AgregarProcesado: AgregarProcesado,
-        ConsultarProcesados: ConsultarProcesados,
-        productosProcesados: productosProcesados,
-        productosProcesadosCopia: productosProcesadosCopia,
-        EliminarProcesado: EliminarProcesado,
-        BuscarProcesados: BuscarProcesados,
-        EditarProcesado: EditarProcesado,
+
+        createProcessed: createProcessed,
+        getProcessed: getProcessed,
+        updateProcessed: updateProcessed,
+        deleteProcessed: deleteProcessed,
+        searchProcessed: searchProcessed,
+        processed: processed,
+        processedCopy: processedCopy,
+
         pizzas: pizzas,
         pizzasCopia: pizzasCopia,
         AgregarPizza: AgregarPizza,

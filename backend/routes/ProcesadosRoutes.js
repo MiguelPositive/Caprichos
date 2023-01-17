@@ -1,16 +1,16 @@
 const express = require("express");
 const {
-  AgregarProcesado,
-  ConsultarProcesados,
-  EditarProcesado,
-  EliminarProcesado,
+  createProcessed,
+  getProcessed,
+  updateProcessed,
+  deleteProcessed,
 } = require("../controllers/ProcesadosControlador.js");
 
 const ProcesadosRouter = express.Router();
 
-ProcesadosRouter.post("/agregar/procesado", AgregarProcesado);
-ProcesadosRouter.get("/consultar/procesados", ConsultarProcesados);
-ProcesadosRouter.post("/editar/procesado", EditarProcesado);
-ProcesadosRouter.post("/eliminar/procesado", EliminarProcesado);
+ProcesadosRouter.post("/create/processed", createProcessed);
+ProcesadosRouter.get("/get/processed", getProcessed);
+ProcesadosRouter.post("/update/processed", updateProcessed);
+ProcesadosRouter.post("/delete/processed", deleteProcessed);
 
 module.exports = { ProcesadosRouter };

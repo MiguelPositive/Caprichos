@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useContext } from "react";
 import { useEffect } from "react";
 
-//material react ui
+//mui
 import { Paper, TableContainer } from "@mui/material";
 import { Table } from "@mui/material";
 import { TableHead } from "@mui/material";
@@ -28,62 +28,59 @@ import KitchenIcon from "@mui/icons-material/Kitchen";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
-//archivos externos
+//externos
+import { store } from "../context/ContextApp";
 import AgregarProducto from "../buttons/AgregarProducto";
 import EliminarCerrar from "../buttons/EliminarCerrar";
 import AgregarIngredientes from "../buttons/AgregarIngredientes";
 import Guardar from "../buttons/Guardar";
-import { store } from "../context/ContextApp";
 import Buscador from "../buttons/Buscador";
 import AcccionesTabla from "../actions/AcccionesTabla";
 
 const Procesados = () => {
   const {
-    ConsultarCrudos,
-    productosCrudos,
-    AgregarProcesado,
-    ConsultarProcesados,
-    productosProcesados,
-    productosProcesadosCopia,
-    EditarProcesado,
-    EliminarProcesado,
+    getRaws,
+    raws,
+    createProcessed,
+    getProcessed,
+    updateProcessed,
+    deleteProcessed,
+    processedCopy,
   } = useContext(store);
 
-  const [modalProcesado, setModalProcesado] = useState(false);
-  const [modalIngredientes, setModalIngredientes] = useState(false);
+  const [processedModal, setProcessedModal] = useState(false);
+  const [ingredientsModal, setIngredientsModal] = useState(false);
 
-  const [idProcesado, setIdProcesado] = useState("");
-  const [editor, setEditor] = useState(false);
+  const [id, setId] = useState("");
+  const [name, setName] = useState("");
+  const [quantity, setQuantity] = useState(null);
 
-  const [nombreProcesado, setNombreProcesado] = useState("");
-  const [cantidadProcesado, setCantidadProcesado] = useState(0);
+  const [modeEditor, setModeEditor] = useState(false);
 
-  const [valorSelector, setValorSelector] = useState("");
-  const [cantidadPorciones, setCantidadPorciones] = useState(0);
-  const [crudosSeleccionados, setCrudosSeleccionados] = useState([]);
+  const [selectorValue, setSelectorValue] = useState("");
+  const [rawPortions, setRawPortions] = useState(null);
+  const [selectedRaws, setSelectedRaws] = useState([]);
 
-  const [flecha, setFlecha] = useState(false);
   const [idColapse, setIdColapse] = useState("");
 
-  //funciones abrir y cerrar
-
-  const AbrirModalProcesado = () => {
-    setModalProcesado(true);
+  const Clean = () => {
+    setIdColapse("");
+    setId("");
+    setName("");
+    setQuantity(null);
+    setSelectedRaws([]);
+    setModeEditor(false);
   };
 
-  const CerrarModalProcesado = () => {
-    setModalProcesado(false);
+  const handleClickOpenProcessedModal = () => {
+    setProcessedModal(!processedModal);
   };
 
-  const AbrirModalIngredientes = () => {
-    setModalIngredientes(true);
+  const handleClickOpenIngredientsModal = () => {
+    setIngredientsModal(!ingredientsModal);
   };
 
-  const CerrarModalIngredientes = () => {
-    setModalIngredientes(false);
-  };
-
-  const AbrirColapse = (id) => {
+  const handleClickOpenColapse = (id) => {
     if (id == idColapse) {
       setIdColapse("");
     } else {
@@ -91,40 +88,78 @@ const Procesados = () => {
     }
   };
 
-  //funciones de cambio
-
-  const handleChangeNombreProcesado = (e) => {
-    setNombreProcesado(e.target.value);
+  const handleClickCloseProcessedModal = () => {
+    handleClickOpenProcessedModal();
+    setTimeout(() => {
+      Clean();
+    }, 350);
   };
 
-  const handleChangeCantidadProcesado = (e) => {
-    setCantidadProcesado(e.target.value);
+  const handleClickCloseIngredientsdModal = () => {
+    handleClickOpenIngredientsModal();
+    setTimeout(() => {
+      Clean();
+    }, 350);
   };
 
-  const handleChangeSelector = (e) => {
-    setValorSelector(e.target.value);
+  const handleChangeProcessedName = (e) => {
+    setName(e.target.value);
   };
 
-  const handleChangeCantidadPorciones = (e) => {
-    setCantidadPorciones(e.target.value);
+  const handleChangeProcessedQuantity = (e) => {
+    setQuantity(parseInt(e.target.value));
   };
 
-  //funciones agregar
+  const handleChangeSelectorValue = (e) => {
+    setSelectorValue(e.target.value);
+  };
 
-  const AgregarCrudo = () => {
-    const objeto = {
-      nombre: valorSelector,
-      cantidad: cantidadPorciones,
+  const handleChangeRawPortions = (e) => {
+    setRawPortions(parseInt(e.target.value));
+  };
+
+  const addRaw = () => {
+    const newRaw = {
+      name: selectorValue,
+      quantity: rawPortions,
     };
 
-    setCrudosSeleccionados([...crudosSeleccionados, objeto]);
+    setSelectedRaws([...selectedRaws, newRaw]);
   };
 
-  //funciones eliminar
+  const update = (processed) => {
+    const { _id, name, quantity, ingredients } = processed;
 
-  const EliminarCrudo = (nombre) => {
-    setCrudosSeleccionados(
-      crudosSeleccionados.filter((iterador) => {
+    setModeEditor(true);
+    setId(_id);
+    setName(name);
+    setQuantity(quantity);
+    setSelectedRaws(ingredients);
+    handleClickOpenProcessedModal();
+  };
+
+  const handleSubmit = () => {
+    const processed = {
+      _id: id,
+      name: name,
+      quantity: quantity,
+      ingredients: selectedRaws,
+    };
+
+    if (modeEditor) {
+      updateProcessed(processed);
+      handleClickOpenProcessedModal();
+      Clean();
+    } else {
+      createProcessed(processed);
+      handleClickOpenProcessedModal();
+      Clean();
+    }
+  };
+
+  const deleteRaw = (nombre) => {
+    setSelectedRaws(
+      selectedRaws.filter((iterador) => {
         if (iterador.nombre != nombre) {
           return iterador;
         }
@@ -132,32 +167,9 @@ const Procesados = () => {
     );
   };
 
-  const EliminarProcesadoo = (id) => {
-    EliminarProcesado(id);
-  };
-  const Limpiar = () => {
-    setIdColapse("");
-    setIdProcesado("");
-    setNombreProcesado("");
-    setCantidadProcesado(null);
-    setCrudosSeleccionados([]);
-  };
-
-  //funciones para editar
-  const PrepararEditarProcesado = (id, nombree, cantidadd, ingredientes) => {
-    setEditor(true);
-    setIdProcesado(id);
-    setNombreProcesado(nombree);
-    setCantidadProcesado(cantidadd);
-    setCrudosSeleccionados(ingredientes);
-    AbrirModalProcesado();
-  };
-
-  //use effects
-
   useEffect(() => {
-    ConsultarCrudos();
-    ConsultarProcesados();
+    getRaws();
+    getProcessed();
   }, []);
   return (
     <>
@@ -178,7 +190,7 @@ const Procesados = () => {
               <div className="col-sm-2 col-md-2 col-lg-2 colx-xl-2 contenedor-agregar">
                 <AgregarProducto
                   titulo={"Agregar Procesado"}
-                  accion={AbrirModalProcesado}
+                  accion={handleClickOpenProcessedModal}
                 />
               </div>
               <div className="col-sm-8 col-md-9 col-lg-9 col-xl-10 contenedor-buscar">
@@ -212,13 +224,13 @@ const Procesados = () => {
                   </TableHead>
 
                   <TableBody>
-                    {productosProcesadosCopia.map((iterador) => (
+                    {processedCopy.map((iterador) => (
                       <TableRow key={iterador._id}>
                         <TableCell align="center" className="col-4">
-                          {iterador.nombre}
+                          {iterador.name}
                           <IconButton
                             onClick={() => {
-                              AbrirColapse(iterador._id);
+                              handleClickOpenColapse(iterador._id);
                             }}
                           >
                             {iterador._id == idColapse ? (
@@ -260,16 +272,18 @@ const Procesados = () => {
                                       </TableHead>
 
                                       <TableBody>
-                                        {iterador.ingredientes.map((i) => (
-                                          <TableRow key={i.nombre}>
-                                            <TableCell align="center">
-                                              {i.nombre}
-                                            </TableCell>
-                                            <TableCell align="center">
-                                              {i.cantidad}
-                                            </TableCell>
-                                          </TableRow>
-                                        ))}
+                                        {iterador.ingredients.map(
+                                          (ingredient) => (
+                                            <TableRow key={ingredient.name}>
+                                              <TableCell align="center">
+                                                {ingredient.name}
+                                              </TableCell>
+                                              <TableCell align="center">
+                                                {ingredient.quantity}
+                                              </TableCell>
+                                            </TableRow>
+                                          )
+                                        )}
                                       </TableBody>
                                     </Table>
                                   </TableContainer>
@@ -279,21 +293,16 @@ const Procesados = () => {
                           </Collapse>
                         </TableCell>
                         <TableCell className="col-4" align="center">
-                          {iterador.cantidad}
+                          {iterador.quantity}
                         </TableCell>
 
                         <TableCell className="col-4">
                           <AcccionesTabla
                             funcionEditar={() => {
-                              PrepararEditarProcesado(
-                                iterador._id,
-                                iterador.nombre,
-                                iterador.cantidad,
-                                iterador.ingredientes
-                              );
+                              update(iterador);
                             }}
                             funcionEliminar={() => {
-                              EliminarProcesadoo(iterador._id);
+                              deleteProcessed(iterador._id);
                             }}
                           />
                         </TableCell>
@@ -307,18 +316,12 @@ const Procesados = () => {
         </div>
       </div>
 
-      {/* Modal añadir procesado / editor */}
-
       <Modal
-        open={modalProcesado}
+        open={processedModal}
         className="animate__animated animate__fadeIn"
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 500,
-        }}
-        onClose={CerrarModalProcesado}
+        onClose={handleClickCloseProcessedModal}
       >
-        <Fade in={modalProcesado} timeout={500}>
+        <Fade in={processedModal} timeout={500}>
           <Paper
             elevation={6}
             className="container modal-sinfocus"
@@ -337,7 +340,7 @@ const Procesados = () => {
             <div className="row ">
               <h5 style={{ width: "100%", textAlign: "center" }}>
                 <b>
-                  {editor
+                  {modeEditor
                     ? "Editar Producto Procesado"
                     : "Agregar Producto Procesado"}
                 </b>
@@ -350,8 +353,8 @@ const Procesados = () => {
                 variant="standard"
                 fullWidth
                 placeholder="Nombre Procesado"
-                defaultValue={nombreProcesado}
-                onChange={handleChangeNombreProcesado}
+                value={name || ""}
+                onChange={handleChangeProcessedName}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -367,8 +370,8 @@ const Procesados = () => {
                 variant="standard"
                 fullWidth
                 placeholder="Cantidad"
-                defaultValue={cantidadProcesado}
-                onChange={handleChangeCantidadProcesado}
+                value={quantity || ""}
+                onChange={handleChangeProcessedQuantity}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -402,13 +405,13 @@ const Procesados = () => {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {crudosSeleccionados.map((iterador) => (
-                          <TableRow key={iterador.nombre}>
+                        {selectedRaws.map((iterador) => (
+                          <TableRow key={iterador.name}>
                             <TableCell align="center">
-                              {iterador.nombre}
+                              {iterador.name}
                             </TableCell>
                             <TableCell align="center">
-                              {iterador.cantidad}
+                              {iterador.quantity}
                             </TableCell>
                             <TableCell
                               align="center"
@@ -417,7 +420,7 @@ const Procesados = () => {
                               <EliminarCerrar
                                 eliminar={true}
                                 accion={() => {
-                                  EliminarCrudo(iterador.nombre);
+                                  deleteRaw(iterador.name);
                                 }}
                               />
                             </TableCell>
@@ -441,7 +444,7 @@ const Procesados = () => {
               <div>
                 <AgregarIngredientes
                   texto={"Agregar Ingredientes"}
-                  accion={AbrirModalIngredientes}
+                  accion={handleClickOpenIngredientsModal}
                 />
               </div>
 
@@ -452,40 +455,12 @@ const Procesados = () => {
                 <div className="mr-4">
                   <EliminarCerrar
                     eliminar={false}
-                    accion={() => {
-                      CerrarModalProcesado();
-                      Limpiar();
-                    }}
+                    accion={handleClickCloseProcessedModal}
                   />
                 </div>
 
                 <div>
-                  <Guardar
-                    accion={
-                      editor
-                        ? () => {
-                            EditarProcesado(
-                              idProcesado,
-                              nombreProcesado,
-                              cantidadProcesado,
-                              crudosSeleccionados
-                            );
-
-                            CerrarModalProcesado();
-                          }
-                        : () => {
-                            setEditor(false);
-                            Limpiar();
-                            AgregarProcesado(
-                              nombreProcesado,
-                              cantidadProcesado,
-                              crudosSeleccionados
-                            );
-                            Limpiar();
-                            CerrarModalProcesado();
-                          }
-                    }
-                  />
+                  <Guardar accion={handleSubmit} />
                 </div>
               </div>
             </div>
@@ -493,10 +468,11 @@ const Procesados = () => {
         </Fade>
       </Modal>
 
-      {/* Modal añadir ingredientes crudos */}
-
-      <Modal open={modalIngredientes} onClose={CerrarModalIngredientes}>
-        <Fade in={modalIngredientes} timeout={500}>
+      <Modal
+        open={ingredientsModal}
+        onClose={handleClickCloseIngredientsdModal}
+      >
+        <Fade in={ingredientsModal} timeout={500}>
           <Paper
             elevation={6}
             className="container modal-sinfocus"
@@ -534,18 +510,18 @@ const Procesados = () => {
               >
                 <InputLabel>Ingredientes Crudos</InputLabel>
                 <Select
-                  value={valorSelector}
+                  value={selectorValue}
                   label="Ingredientes Crudos"
                   autoWidth
-                  onChange={handleChangeSelector}
+                  onChange={handleChangeSelectorValue}
                 >
                   <MenuItem value="">
                     <em>Seleccione un Ingrediente</em>
                   </MenuItem>
 
-                  {productosCrudos.map((iterador) => (
-                    <MenuItem value={iterador.nombre} key={iterador._id}>
-                      {iterador.nombre}
+                  {raws.map((raw) => (
+                    <MenuItem value={raw.name} key={raw._id}>
+                      {raw.name}
                     </MenuItem>
                   ))}
                 </Select>
@@ -558,7 +534,7 @@ const Procesados = () => {
                 variant="standard"
                 fullWidth
                 placeholder="Cantidad de Porciones"
-                onChange={handleChangeCantidadPorciones}
+                onChange={handleChangeRawPortions}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -580,11 +556,11 @@ const Procesados = () => {
               <div className="mr-4">
                 <EliminarCerrar
                   eliminar={false}
-                  accion={CerrarModalIngredientes}
+                  accion={handleClickCloseIngredientsdModal}
                 />
               </div>
 
-              <Guardar accion={AgregarCrudo} />
+              <Guardar accion={addRaw} />
             </div>
           </Paper>
         </Fade>

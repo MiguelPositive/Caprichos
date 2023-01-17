@@ -29,7 +29,7 @@ const Buscador = ({ producto }) => {
   const {
     BuscarUsuarios,
     searchRaws,
-    BuscarProcesados,
+    searchProcessed,
     BuscarPizzas,
     BuscarVentas,
   } = useContext(store);
@@ -55,7 +55,7 @@ const Buscador = ({ producto }) => {
 
       case "procesados":
         setTimeout(() => {
-          BuscarProcesados(elemento);
+          searchProcessed(elemento);
         }, 200);
         break;
       case "pizzas":

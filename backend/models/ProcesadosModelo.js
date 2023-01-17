@@ -1,21 +1,21 @@
 const mongoose = require("mongoose");
 
-const ProcesadosEsquema = mongoose.Schema({
-  nombre: {
+const processedSchema = mongoose.Schema({
+  name: {
     type: String,
     trim: false,
   },
 
-  cantidad: {
+  quantity: {
     type: Number,
     trim: true,
   },
 
-  ingredientes: {
+  ingredients: {
     type: Array,
   },
 });
 
-const modeloProcesados = mongoose.model("procesados", ProcesadosEsquema);
+const processedModel = mongoose.model("procesados", processedSchema);
 
-module.exports = { modeloProcesados };
+module.exports = { processedModel };

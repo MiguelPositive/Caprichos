@@ -1,28 +1,29 @@
-const { modeloProcesados } = require("../models/ProcesadosModelo.js");
-const { modeloCrudos } = require("../models/CrudosModelo.js");
+const { processedModel } = require("../models/ProcesadosModelo.js");
+const { rawsModel } = require("../models/CrudosModelo.js");
 
-const AgregarProcesado = async (req, res) => {
+const createProcessed = async (req, res) => {
   try {
-    const { nombre, cantidad, ingredientes } = req.body;
-    (await modeloCrudos.find()).map((crudos) => {
+    const { name, quantity, ingredients } = req.body;
+
+    (await rawsModel.find()).map((raw) => {
       //
 
-      ingredientes.map(async (iterador) => {
-        if (crudos.nombre == iterador.nombre) {
-          //aca hago la resta
+      ingredients.map(async (ingredient) => {
+        if (raw.name == ingredient.name) {
+          //
 
-          let porciones = crudos.cantidadPorciones;
+          let portions = raw.portionsQuantity;
 
           //
-          await modeloCrudos.updateOne(
-            { _id: crudos._id },
+          await rawsModel.updateOne(
+            { _id: raw._id },
 
             {
               $set: {
-                nombre: crudos.nombre,
-                peso: crudos.peso,
-                gramosPorcion: crudos.gramosPorcion,
-                cantidadPorciones: porciones - iterador.cantidad * cantidad,
+                name: raw.name,
+                totalWeight: raw.totalWeight,
+                portionWeight: raw.portionWeight,
+                portionsQuantity: portions - ingredient.quantity * quantity,
               },
             }
           );
@@ -30,15 +31,15 @@ const AgregarProcesado = async (req, res) => {
       });
     });
 
-    const nuevoProcesado = modeloProcesados({
-      nombre,
-      cantidad,
-      ingredientes,
+    const newProcessed = await processedModel({
+      name,
+      quantity,
+      ingredients,
     });
 
-    nuevoProcesado.save();
+    newProcessed.save();
 
-    res.json({ mensaje: true });
+    res.sendStatus(200);
   } catch (error) {
     console.log(
       `ocurrior un error en el backend al intentar  agregar el producto procesado: ${error}`
@@ -46,11 +47,11 @@ const AgregarProcesado = async (req, res) => {
   }
 };
 
-const ConsultarProcesados = async (req, res) => {
+const getProcessed = async (req, res) => {
   try {
-    const procesados = await modeloProcesados.find().lean().exec();
+    const processed = await processedModel.find().lean().exec();
 
-    res.send({ procesados });
+    res.send({ processed });
   } catch (error) {
     console.log(
       `ocurrio un error en el backend al intentar consultar los productos procesados: ${error}`
@@ -58,16 +59,16 @@ const ConsultarProcesados = async (req, res) => {
   }
 };
 
-const EditarProcesado = async (req, res) => {
+const updateProcessed = async (req, res) => {
   try {
-    const { _id, nombre, cantidad, ingredientes } = req.body;
+    const { _id, name, quantity, ingredients } = req.body;
 
-    await modeloProcesados.updateOne(
+    await processedModel.updateOne(
       { _id },
-      { $set: { nombre, cantidad, ingredientes } }
+      { $set: { name, quantity, ingredients } }
     );
 
-    res.json({ mensaje: true });
+    res.sendStatus(200);
   } catch (error) {
     console.log(
       `ocurrio un error en el backend al intentar editar el producto procesado`
@@ -75,10 +76,11 @@ const EditarProcesado = async (req, res) => {
   }
 };
 
-const EliminarProcesado = async (req, res) => {
+const deleteProcessed = async (req, res) => {
   try {
-    await modeloProcesados.deleteOne({ _id: req.body._id });
-    res.json({ mensaje: true });
+    await processedModel.deleteOne({ _id: req.body._id });
+
+    res.sendStatus(200);
   } catch (error) {
     console.log(
       `ocurrio un error en el backend al intentar eliminar el producto procesado: ${error}`
@@ -87,8 +89,8 @@ const EliminarProcesado = async (req, res) => {
 };
 
 module.exports = {
-  AgregarProcesado,
-  ConsultarProcesados,
-  EditarProcesado,
-  EliminarProcesado,
+  createProcessed,
+  getProcessed,
+  updateProcessed,
+  deleteProcessed,
 };
