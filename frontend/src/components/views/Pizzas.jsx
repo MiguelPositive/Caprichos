@@ -41,68 +41,80 @@ import "animate.css";
 
 const Pizzas = () => {
   const {
-    ConsultarProcesados,
-    productosProcesados,
-    AgregarPizza,
-    ConsultarPizzas,
-    pizzasCopia,
-    EditarPizza,
-    EliminarPizza,
+    getProcessed,
+    processed,
+
+    createPizza,
+    getPizzas,
+    updatePizza,
+    deletePizza,
+    pizzasCopy,
   } = useContext(store);
 
-  const [modalPizzas, setModalPizzas] = useState(false);
-  const [modalProcesados, setModalProcesados] = useState(false);
+  const [pizzasModal, setpPizzasModal] = useState(false);
+  const [ingredientsModal, setIngredientsModal] = useState(false);
 
-  const [valorSelector, setValorSelector] = useState("");
-  const [porcionesIngrediente, setPorcionesIngrediente] = useState(null);
+  const [selectorValue, setSelectorValue] = useState("");
+  const [ingredientPortions, setIngredientPortions] = useState(null);
 
   const [idColapse, setIdColapse] = useState("");
-  const [idPizza, setIdPizza] = useState("");
-  const [nombrePizza, setNombrePizza] = useState("");
-  const [precioPizza, setPrecioPizza] = useState(0);
-  const [ingredientesSeleccionados, setIngredientesSeleccionados] = useState(
-    []
-  );
 
-  const [editor, setEditor] = useState(false);
+  const [id, setId] = useState("");
+  const [name, setName] = useState("");
+  const [cost, setCost] = useState(0);
+  const [selectedIngredients, setSelectedIngredients] = useState([]);
 
-  //abrir y cerrar modales
+  const [modeEditor, setModeEditor] = useState(false);
 
-  const AbrirModalPizzas = () => {
-    setModalPizzas(true);
+  const Clean = () => {
+    setIdColapse("");
+    setId("");
+    setName("");
+    setCost(null);
+    setSelectedIngredients([]);
+    setModeEditor(false);
   };
 
-  const CerrarModalPizzas = () => {
-    setModalPizzas(false);
+  const handleClickOpenPizzasModal = () => {
+    setpPizzasModal(true);
   };
 
-  const AbrirModalProcesados = () => {
-    setModalProcesados(true);
+  const handleClickClosePizzasModal = () => {
+    setpPizzasModal(false);
+
+    setTimeout(() => {
+      Clean();
+    }, 250);
   };
 
-  const CerrarModalProcesados = () => {
-    setModalProcesados(false);
+  const handleClickOpenIngredientsModal = () => {
+    setIngredientsModal(true);
   };
 
-  //funciones de cambio
-
-  const handleChangeNombrePizza = (e) => {
-    setNombrePizza(e.target.value);
+  const handleClickCloseIngredientsModal = () => {
+    setIngredientsModal(false);
+    setTimeout(() => {
+      Clean();
+    }, 250);
   };
 
-  const handleChangePrecioPizza = (e) => {
-    setPrecioPizza(e.target.value);
+  const handleChangeName = (e) => {
+    setName(e.target.value);
   };
 
-  const handleChangeSelector = (e) => {
-    setValorSelector(e.target.value);
+  const handleChangeCost = (e) => {
+    setCost(parseInt(e.target.value));
   };
 
-  const handleChangePorcionesIngrediente = (e) => {
-    setPorcionesIngrediente(parseInt(e.target.value));
+  const handleChangeSelectorValue = (e) => {
+    setSelectorValue(e.target.value);
   };
 
-  const handleChangeCapturarId = (id) => {
+  const handleChangeIngredientPortions = (e) => {
+    setIngredientPortions(parseInt(e.target.value));
+  };
+
+  const handleChangeIdCollapse = (id) => {
     if (idColapse == id) {
       setIdColapse("");
     } else {
@@ -110,61 +122,48 @@ const Pizzas = () => {
     }
   };
 
-  //funciones agregar
-
-  const AgregarIngrediente = () => {
-    const objeto = {
-      nombre: valorSelector,
-      cantidad: porcionesIngrediente,
+  const addIngredient = () => {
+    const newIngredient = {
+      name: selectorValue,
+      quantity: ingredientPortions,
     };
 
-    setIngredientesSeleccionados([...ingredientesSeleccionados, objeto]);
+    setSelectedIngredients([...selectedIngredients, newIngredient]);
   };
 
-  //funciones eliminar
+  const update = (pizza) => {
+    const { _id, name, cost, ingredients } = pizza;
+    setModeEditor(true);
+    setId(_id);
+    setName(name);
+    setCost(cost);
+    setSelectedIngredients(ingredients);
+    handleClickOpenPizzasModal();
+  };
 
-  const EliminarIngrediente = (nombre) => {
-    const temporal = ingredientesSeleccionados.filter((iterador) => {
+  const handleSubmit = () => {
+    if (modeEditor) {
+      updatePizza(id, name, cost, selectedIngredients);
+      handleClickClosePizzasModal();
+    } else {
+      createPizza(name, cost, selectedIngredients);
+      handleClickClosePizzasModal();
+    }
+  };
+
+  const deleteIngredient = (nombre) => {
+    const temporal = selectedIngredients.filter((iterador) => {
       if (nombre != iterador.nombre) {
         return iterador;
       }
     });
 
-    setIngredientesSeleccionados(temporal);
+    setSelectedIngredients(temporal);
   };
-
-  //funciones limpiar
-
-  const Limpiar = () => {
-    setIdColapse("");
-    setIdPizza("");
-    setNombrePizza("");
-    setIngredientesSeleccionados([]);
-  };
-
-  //funciones de editar
-
-  const ActivarEditor = () => {
-    setEditor(true);
-  };
-
-  const DesactivarEditor = () => {
-    setEditor(false);
-  };
-
-  const PreparEdicion = (id, nombree, ingredientess) => {
-    ActivarEditor();
-    setIdPizza(id);
-    setNombrePizza(nombree);
-    setIngredientesSeleccionados(ingredientess);
-    AbrirModalPizzas();
-  };
-
-  //use effects
 
   useEffect(() => {
-    ConsultarProcesados();
-    ConsultarPizzas();
+    getProcessed();
+    getPizzas();
   }, []);
 
   return (
@@ -185,10 +184,7 @@ const Pizzas = () => {
             <div className="col-sm-2 col-md-2 col-lg-2 colx-xl-2 contenedor-agregar">
               <AgregarProducto
                 titulo={"Agregar Pizza"}
-                accion={() => {
-                  DesactivarEditor();
-                  AbrirModalPizzas();
-                }}
+                accion={handleClickOpenPizzasModal}
               />
             </div>
             <div className="col-sm-8 col-md-9 col-lg-9 col-xl-10 contenedor-buscar">
@@ -223,17 +219,17 @@ const Pizzas = () => {
                 </TableHead>
 
                 <TableBody>
-                  {pizzasCopia.map((iterador) => (
-                    <TableRow key={iterador._id}>
+                  {pizzasCopy.map((pizza) => (
+                    <TableRow key={pizza._id}>
                       <TableCell align="center">
-                        {iterador.nombre}
+                        {pizza.name}
 
                         <IconButton
                           onClick={() => {
-                            handleChangeCapturarId(iterador._id);
+                            handleChangeIdCollapse(pizza._id);
                           }}
                         >
-                          {idColapse == iterador._id ? (
+                          {idColapse == pizza._id ? (
                             <KeyboardArrowDownIcon />
                           ) : (
                             <KeyboardArrowUpIcon />
@@ -241,7 +237,7 @@ const Pizzas = () => {
                         </IconButton>
 
                         <Collapse
-                          in={idColapse == iterador._id}
+                          in={idColapse == pizza._id}
                           timeout="auto"
                           unmountOnExit
                         >
@@ -267,14 +263,14 @@ const Pizzas = () => {
                                       </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                      {iterador.ingredientes.map((i) => (
-                                        <TableRow key={i.nombre}>
+                                      {pizza.ingredients.map((ingredient) => (
+                                        <TableRow key={ingredient.name}>
                                           <TableCell align="center">
-                                            {i.nombre}
+                                            {ingredient.name}
                                           </TableCell>
 
                                           <TableCell align="center">
-                                            {i.cantidad}
+                                            {ingredient.quantity}
                                           </TableCell>
                                         </TableRow>
                                       ))}
@@ -287,19 +283,15 @@ const Pizzas = () => {
                         </Collapse>
                       </TableCell>
 
-                      <TableCell align="center">{iterador.precio}</TableCell>
+                      <TableCell align="center">{pizza.cost}</TableCell>
 
                       <TableCell align="center">
                         <AcccionesTabla
                           funcionEliminar={() => {
-                            EliminarPizza(iterador._id);
+                            deletePizza(pizza._id);
                           }}
                           funcionEditar={() => {
-                            PreparEdicion(
-                              iterador._id,
-                              iterador.nombre,
-                              iterador.ingredientes
-                            );
+                            update(pizza);
                           }}
                         />
                       </TableCell>
@@ -312,14 +304,12 @@ const Pizzas = () => {
         </div>
       </div>
 
-      {/* Modal agregar pizza / modo editor */}
-
       <Modal
-        open={modalPizzas}
-        onClose={CerrarModalPizzas}
+        open={pizzasModal}
+        onClose={handleClickClosePizzasModal}
         className="animate__animated animate__fadeIn"
       >
-        <Fade in={modalPizzas} timeout={500}>
+        <Fade in={pizzasModal} timeout={500}>
           <Paper
             elevation={9}
             className="container modal-sinfocus"
@@ -337,17 +327,17 @@ const Pizzas = () => {
           >
             <div className="row">
               <h5 style={{ width: "100%", textAlign: "center" }}>
-                <b>{editor ? "Editar Pizza" : "Agregar Pizza"}</b>
+                <b>{modeEditor ? "Editar Pizza" : "Agregar Pizza"}</b>
               </h5>
             </div>
 
-            <div className="row">
+            <div className="row" style={{ width: "100%" }}>
               <TextField
                 placeholder="Nombre pizza"
                 variant="standard"
                 fullWidth
-                onChange={handleChangeNombrePizza}
-                defaultValue={nombrePizza}
+                onChange={handleChangeName}
+                value={name || ""}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -358,14 +348,14 @@ const Pizzas = () => {
               />
             </div>
 
-            <div className="row mt-3">
+            <div className="row mt-3" style={{ width: "100%" }}>
               <TextField
                 placeholder="Precio Pizza"
                 variant="standard"
                 fullWidth
                 type="number"
-                onChange={handleChangePrecioPizza}
-                defaultValue={nombrePizza}
+                onChange={handleChangeCost}
+                value={cost || ""}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -398,13 +388,13 @@ const Pizzas = () => {
                     </TableHead>
 
                     <TableBody>
-                      {ingredientesSeleccionados.map((iterador) => (
-                        <TableRow key={iterador.nombre}>
+                      {selectedIngredients.map((ingredient) => (
+                        <TableRow key={ingredient.name}>
                           <TableCell align="center">
-                            {iterador.nombre}
+                            {ingredient.name}
                           </TableCell>
                           <TableCell align="center">
-                            {iterador.cantidad}
+                            {ingredient.quantity}
                           </TableCell>
                           <TableCell
                             align="center"
@@ -413,7 +403,7 @@ const Pizzas = () => {
                             <EliminarCerrar
                               eliminar={true}
                               accion={() => {
-                                EliminarIngrediente(iterador.nombre);
+                                deleteIngredient(ingredient.name);
                               }}
                             />
                           </TableCell>
@@ -427,7 +417,7 @@ const Pizzas = () => {
             <div className="row mt-4">
               <AgregarIngredientes
                 texto={"Agregar Ingredientes"}
-                accion={AbrirModalProcesados}
+                accion={handleClickOpenIngredientsModal}
               />
             </div>
 
@@ -443,48 +433,20 @@ const Pizzas = () => {
               <div className="mr-4">
                 <EliminarCerrar
                   eliminar={false}
-                  accion={() => {
-                    CerrarModalPizzas();
-                    Limpiar();
-                  }}
+                  accion={handleClickClosePizzasModal}
                 />
               </div>
 
               <div>
-                <Guardar
-                  accion={
-                    editor
-                      ? () => {
-                          CerrarModalPizzas();
-                          EditarPizza(
-                            idPizza,
-                            nombrePizza,
-                            precioPizza,
-                            ingredientesSeleccionados
-                          );
-                          Limpiar();
-                        }
-                      : () => {
-                          CerrarModalPizzas();
-                          AgregarPizza(
-                            nombrePizza,
-                            precioPizza,
-                            ingredientesSeleccionados
-                          );
-                          Limpiar();
-                        }
-                  }
-                />
+                <Guardar accion={handleSubmit} />
               </div>
             </div>
           </Paper>
         </Fade>
       </Modal>
 
-      {/* Modal Agregar ingredientes procesados */}
-
-      <Modal open={modalProcesados} onClose={CerrarModalProcesados}>
-        <Fade in={modalProcesados} timeout={500}>
+      <Modal open={ingredientsModal} onClose={handleClickCloseIngredientsModal}>
+        <Fade in={ingredientsModal} timeout={500}>
           <Paper
             elevation={9}
             sx={{
@@ -514,18 +476,18 @@ const Pizzas = () => {
               >
                 <InputLabel>Ingredientes Procesados</InputLabel>
                 <Select
-                  value={valorSelector}
+                  value={selectorValue || ""}
                   label="Ingredientes Procesados"
                   className="modal-sinfocus"
                   autoWidth
-                  onChange={handleChangeSelector}
+                  onChange={handleChangeSelectorValue}
                 >
                   <MenuItem value="">
                     <em>Seleccione un Ingrediente</em>
                   </MenuItem>
-                  {productosProcesados.map((iterador) => (
-                    <MenuItem key={iterador._id} value={iterador.nombre}>
-                      {iterador.nombre}
+                  {processed.map((_processed) => (
+                    <MenuItem key={_processed._id} value={_processed.name}>
+                      {_processed.name}
                     </MenuItem>
                   ))}
                 </Select>
@@ -538,7 +500,7 @@ const Pizzas = () => {
                 type="number"
                 variant="standard"
                 fullWidth
-                onChange={handleChangePorcionesIngrediente}
+                onChange={handleChangeIngredientPortions}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -559,11 +521,11 @@ const Pizzas = () => {
               <div className="mr-4">
                 <EliminarCerrar
                   eliminar={false}
-                  accion={CerrarModalProcesados}
+                  accion={handleClickCloseIngredientsModal}
                 />
               </div>
               <div>
-                <Guardar accion={AgregarIngrediente} />
+                <Guardar accion={addIngredient} />
               </div>
             </div>
           </Paper>

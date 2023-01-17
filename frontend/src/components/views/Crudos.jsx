@@ -32,7 +32,7 @@ import "animate.css";
 import "../../styles/Crudos.css";
 
 const Crudos = () => {
-  const { createRaw, getRaws, rawsCopy, updateRaw, deleteRaw } =
+  const { createRaw, getRaws, updateRaw, deleteRaw, rawsCopy } =
     useContext(store);
 
   const [id, setId] = useState("");

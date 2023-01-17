@@ -1,23 +1,23 @@
 const mongoose = require("mongoose");
 
-const PizzasEsquema = mongoose.Schema({
-  nombre: {
+const pizzasSchema = mongoose.Schema({
+  name: {
     type: String,
     trim: false,
   },
 
-  precio: {
+  cost: {
     type: Number,
     trim: false,
   },
 
-  ingredientes: {
+  ingredients: {
     type: Array,
   },
 });
 
-const modeloPizzas = mongoose.model("pizzas", PizzasEsquema);
+const pizzasModel = mongoose.model("pizzas", pizzasSchema);
 
 module.exports = {
-  modeloPizzas,
+  pizzasModel,
 };

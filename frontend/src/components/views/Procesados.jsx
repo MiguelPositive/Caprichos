@@ -41,6 +41,7 @@ const Procesados = () => {
   const {
     getRaws,
     raws,
+
     createProcessed,
     getProcessed,
     updateProcessed,

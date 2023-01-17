@@ -1,17 +1,17 @@
 const express = require("express");
 const {
-  AgregarPizza,
-  ConsultarPizzas,
-  EditarPizza,
-  EliminarPizza,
+  createPizza,
+  getPizzas,
+  updatePizza,
+  deletePizza,
 } = require("../controllers/PizzasControlador.js");
 
 const PizzasRouter = express.Router();
 
-PizzasRouter.post("/agregar/pizza", AgregarPizza);
-PizzasRouter.get("/consultar/pizzas", ConsultarPizzas);
-PizzasRouter.post("/eliminar/pizza", EliminarPizza);
-PizzasRouter.post("/editar/pizza", EditarPizza);
+PizzasRouter.post("/create/pizza", createPizza);
+PizzasRouter.get("/get/pizzas", getPizzas);
+PizzasRouter.post("/update/pizza", updatePizza);
+PizzasRouter.post("/delete/pizza", deletePizza);
 
 module.exports = {
   PizzasRouter,

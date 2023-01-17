@@ -1,18 +1,18 @@
-const { modeloPizzas } = require("../models/PizzasModelo.js");
+const { pizzasModel } = require("../models/PizzasModelo.js");
 
-const AgregarPizza = async (req, res) => {
+const createPizza = async (req, res) => {
   try {
-    const { nombre, precio, ingredientes } = req.body;
+    const { name, cost, ingredients } = req.body;
 
-    const nuevaPizza = await modeloPizzas({
-      nombre,
-      precio,
-      ingredientes,
+    const newPizza = await pizzasModel({
+      name,
+      cost,
+      ingredients,
     });
 
-    nuevaPizza.save();
+    newPizza.save();
 
-    res.json({ mensaje: true });
+    res.sendStatus(200);
   } catch (error) {
     console.log(
       `ocurrio un erro en el backend al intentar agregar la pizza: ${error}`
@@ -20,9 +20,9 @@ const AgregarPizza = async (req, res) => {
   }
 };
 
-const ConsultarPizzas = async (req, res) => {
+const getPizzas = async (req, res) => {
   try {
-    const pizzas = await modeloPizzas.find().lean().exec();
+    const pizzas = await pizzasModel.find().lean().exec();
 
     res.send({ pizzas });
   } catch (error) {
@@ -32,16 +32,13 @@ const ConsultarPizzas = async (req, res) => {
   }
 };
 
-const EditarPizza = async (req, res) => {
+const updatePizza = async (req, res) => {
   try {
-    const { _id, nombre, precio, ingredientes } = req.body;
+    const { _id, name, cost, ingredients } = req.body;
 
-    await modeloPizzas.updateOne(
-      { _id },
-      { $set: { nombre, precio, ingredientes } }
-    );
+    await pizzasModel.updateOne({ _id }, { $set: { name, cost, ingredients } });
 
-    res.json({ mensaje: true });
+    res.sendStatus(200);
   } catch (error) {
     console.log(
       `ocurriro un error en el backend al intentar editar la pizza: ${error}`
@@ -49,10 +46,11 @@ const EditarPizza = async (req, res) => {
   }
 };
 
-const EliminarPizza = async (req, res) => {
-  await modeloPizzas.deleteOne({ _id: req.body._id });
+const deletePizza = async (req, res) => {
+  const { _id } = req.body;
+  await pizzasModel.deleteOne({ _id });
 
-  res.json({ mensaje: true });
+  res.sendStatus(200);
 
   try {
   } catch (error) {
@@ -62,4 +60,9 @@ const EliminarPizza = async (req, res) => {
   }
 };
 
-module.exports = { AgregarPizza, ConsultarPizzas, EditarPizza, EliminarPizza };
+module.exports = {
+  createPizza,
+  getPizzas,
+  updatePizza,
+  deletePizza,
+};

@@ -34,7 +34,7 @@ const ContextApp = (props) => {
   //variables de pizzas
 
   const [pizzas, setPizzas] = useState([]);
-  const [pizzasCopia, setPizzasCopia] = useState([]);
+  const [pizzasCopy, setPizzasCopy] = useState([]);
 
   //variables de ventas
 
@@ -338,18 +338,16 @@ const ContextApp = (props) => {
     }
   };
 
-  const AgregarPizza = async (nombre, precio, ingredientes) => {
+  const createPizza = async (name, cost, ingredients) => {
     try {
-      const res = axios.post("http://192.168.18.222:4000/agregar/pizza", {
-        nombre,
-        precio,
-        ingredientes,
+      await axios.post("http://192.168.18.222:4000/create/pizza", {
+        name,
+        cost,
+        ingredients,
       });
 
-      if ((await res).data.mensaje) {
-        exito();
-        ConsultarPizzas();
-      }
+      exito();
+      getPizzas();
     } catch (error) {
       console.log(
         `ocurrio un error en el frontend al intentar agregar una pizza: ${error} `
@@ -357,14 +355,14 @@ const ContextApp = (props) => {
     }
   };
 
-  const ConsultarPizzas = async () => {
+  const getPizzas = async () => {
     try {
-      const res = await axios.get(
-        "http://192.168.18.222:4000/consultar/pizzas"
-      );
+      const {
+        data: { pizzas },
+      } = await axios.get("http://192.168.18.222:4000/get/pizzas");
 
-      setPizzas((await res).data.pizzas);
-      setPizzasCopia((await res).data.pizzas);
+      setPizzas(pizzas);
+      setPizzasCopy(pizzas);
     } catch (error) {
       console.log(
         `ocurrio un error en el frontend al intentar consultar las  pizzas: ${error}`
@@ -372,18 +370,17 @@ const ContextApp = (props) => {
     }
   };
 
-  const EditarPizza = async (_id, nombre, precio, ingredientes) => {
-    const res = await axios.post("http://192.168.18.222:4000/editar/pizza", {
+  const updatePizza = async (_id, name, cost, ingredients) => {
+    await axios.post("http://192.168.18.222:4000/update/pizza", {
       _id,
-      nombre,
-      precio,
-      ingredientes,
+      name,
+      cost,
+      ingredients,
     });
 
-    if ((await res).data.mensaje) {
-      exito();
-      ConsultarPizzas();
-    }
+    exito();
+    getPizzas();
+
     try {
     } catch (error) {
       console.log(
@@ -392,16 +389,14 @@ const ContextApp = (props) => {
     }
   };
 
-  const EliminarPizza = async (_id) => {
+  const deletePizza = async (_id) => {
     try {
-      const res = axios.post("http://192.168.18.222:4000/eliminar/pizza", {
+      await axios.post("http://192.168.18.222:4000/delete/pizza", {
         _id,
       });
 
-      if ((await res).data.mensaje) {
-        exito();
-        ConsultarPizzas();
-      }
+      exito();
+      getPizzas();
     } catch (error) {
       console.log(
         `ocurriro un error en el frontend al intentar eliminar la pizza: ${error}`
@@ -409,18 +404,17 @@ const ContextApp = (props) => {
     }
   };
 
-  const BuscarPizzas = (nombre) => {
-    const busqueda = pizzas.filter((iterador) => {
-      if (iterador.nombre.toLowerCase().includes(nombre.toLowerCase())) {
+  const searchPizzas = (name) => {
+    const filteredPizzas = pizzas.filter((iterador) => {
+      if (iterador.name.toLowerCase().includes(name.toLowerCase())) {
         return iterador;
       }
     });
 
-    if (nombre == "") {
-      setPizzasCopia(pizzas);
+    if (name == "") {
+      setPizzasCopy(pizzas);
     } else {
-      console.log(busqueda);
-      setPizzasCopia(busqueda);
+      setPizzasCopy(filteredPizzas);
     }
   };
 
@@ -591,29 +585,30 @@ const ContextApp = (props) => {
         HacerValidacionUsuario: HacerValidacionUsuario,
         HacerValidacionCargo: HacerValidacionCargo,
 
-        createRaw: createRaw,
-        getRaws: getRaws,
-        updateRaw: updateRaw,
-        deleteRaw: deleteRaw,
-        searchRaws: searchRaws,
-        raws: raws,
-        rawsCopy: rawsCopy,
+        createRaw,
+        getRaws,
+        updateRaw,
+        deleteRaw,
+        searchRaws,
+        raws,
+        rawsCopy,
 
-        createProcessed: createProcessed,
-        getProcessed: getProcessed,
-        updateProcessed: updateProcessed,
-        deleteProcessed: deleteProcessed,
-        searchProcessed: searchProcessed,
-        processed: processed,
-        processedCopy: processedCopy,
+        createProcessed,
+        getProcessed,
+        updateProcessed,
+        deleteProcessed,
+        searchProcessed,
+        processed,
+        processedCopy,
 
-        pizzas: pizzas,
-        pizzasCopia: pizzasCopia,
-        AgregarPizza: AgregarPizza,
-        ConsultarPizzas: ConsultarPizzas,
-        EditarPizza: EditarPizza,
-        EliminarPizza: EliminarPizza,
-        BuscarPizzas: BuscarPizzas,
+        createPizza,
+        getPizzas,
+        updatePizza,
+        deletePizza,
+        searchPizzas,
+        pizzas,
+        pizzasCopy,
+
         AgregarVenta: AgregarVenta,
         ConsultarVentas: ConsultarVentas,
         ventas: ventas,
