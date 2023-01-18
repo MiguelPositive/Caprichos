@@ -27,7 +27,7 @@ const BarraBusqueda = styled(Paper)({
 
 const Buscador = ({ producto }) => {
   const {
-    BuscarUsuarios,
+    searchUsers,
     searchRaws,
     searchProcessed,
     searchPizzas,
@@ -43,7 +43,7 @@ const Buscador = ({ producto }) => {
     switch (producto) {
       case "usuarios":
         setTimeout(() => {
-          BuscarUsuarios(elemento);
+          searchUsers(elemento);
         }, 200);
 
         break;

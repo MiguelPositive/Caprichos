@@ -20,8 +20,8 @@ const ContextApp = (props) => {
 
   //variables de usuarios
 
-  const [usuarios, setUsuarios] = useState([]);
-  const [usuariosCopia, setUsuariosCopia] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [usersCopy, setUsersCopy] = useState([]);
 
   //variables de productos crudos
   const [raws, setRaws] = useState([]);
@@ -63,11 +63,13 @@ const ContextApp = (props) => {
 
   //funciones de usuarios
 
-  const ConsultarUsuarios = async () => {
+  const getUsers = async () => {
     try {
-      const res = axios.get("http://192.168.18.222:4000/consultar/usuarios");
-      setUsuarios((await res).data.usuarios);
-      setUsuariosCopia((await res).data.usuarios);
+      const {
+        data: { users },
+      } = await axios.get("http://192.168.18.222:4000/get/users");
+      setUsers(users);
+      setUsersCopy(users);
     } catch (error) {
       console.log(
         `ocurrio un error en el frontend al intentar  consultar los usuarios: ${error}`
@@ -75,18 +77,16 @@ const ContextApp = (props) => {
     }
   };
 
-  const AgregarUsuario = async (usuario, contrasena, cargo) => {
+  const createUser = async ({ user, password, position }) => {
     try {
-      const res = axios.post("http://192.168.18.222:4000/agregar/usuario", {
-        usuario,
-        contrasena,
-        cargo,
+      await axios.post("http://192.168.18.222:4000/create/user", {
+        user,
+        password,
+        position,
       });
 
-      if ((await res).data.mensaje) {
-        exito();
-        ConsultarUsuarios();
-      }
+      exito();
+      getUsers();
     } catch (error) {
       console.log(
         `ocurrio un error en el frontend al intentar agregar el usuario: ${error}`
@@ -94,51 +94,17 @@ const ContextApp = (props) => {
     }
   };
 
-  const HacerValidacionUsuario = async (usuario, contrasena) => {
+  const updateUser = async ({ _id, user, password, position }) => {
     try {
-      const res = await axios.post(
-        "http://192.168.18.222:4000/validar/usuario",
-        {
-          usuario,
-          contrasena,
-        }
-      );
-
-      return (await res).data.mensaje;
-    } catch (error) {
-      console.log(
-        `ocurrio un error  en le frontend al intentar enviar los datos del usuario para ser validado: ${error} `
-      );
-    }
-  };
-
-  const HacerValidacionCargo = async (usuario) => {
-    try {
-      const res = await axios.post("http://192.168.18.222:4000/validar/cargo", {
-        usuario,
-      });
-
-      return (await res).data.cargo;
-    } catch (error) {
-      console.log(
-        `ocurrio un error en el frontend al intentar validar el cargo: ${error} `
-      );
-    }
-  };
-
-  const EditarUsuario = async (_id, usuario, contrasena, cargo) => {
-    try {
-      const res = axios.post("http://192.168.18.222:4000/editar/usuario", {
+      await axios.post("http://192.168.18.222:4000/update/user", {
         _id,
-        usuario,
-        contrasena,
-        cargo,
+        user,
+        password,
+        position,
       });
 
-      if ((await res).data.mensaje) {
-        exito();
-        ConsultarUsuarios();
-      }
+      exito();
+      getUsers();
     } catch (error) {
       console.log(
         `ocurrio un error en el frontend al intentar editar el usuario: ${u}`
@@ -146,28 +112,59 @@ const ContextApp = (props) => {
     }
   };
 
-  const EliminarUsuario = async (_id) => {
-    const res = axios.post("http://192.168.18.222:4000/eliminar/usuario", {
+  const deleteUser = async (_id) => {
+    await axios.post("http://192.168.18.222:4000/delete/user", {
       _id,
     });
 
-    if ((await res).data.mensaje) {
-      exito();
-      ConsultarUsuarios();
-    }
+    exito();
+    getUsers();
   };
 
-  const BuscarUsuarios = (usuario) => {
-    if (usuario == "") {
-      setUsuariosCopia(usuarios);
+  const searchUsers = (user) => {
+    if (user == "") {
+      setUsersCopy(users);
     } else {
-      let resultados = usuarios.filter((iterador) => {
-        if (iterador.usuario.toLowerCase().includes(usuario)) {
-          return iterador;
+      let filteredUsers = users.filter((user) => {
+        if (user.user.toLowerCase().includes(user)) {
+          return user;
         }
       });
 
-      setUsuariosCopia(resultados);
+      setUsersCopy(filteredUsers);
+    }
+  };
+
+  const validateUser = async (user, password) => {
+    try {
+      const {
+        data: { isUser },
+      } = await axios.post("http://192.168.18.222:4000/validate/user", {
+        user,
+        password,
+      });
+
+      return isUser;
+    } catch (error) {
+      console.log(
+        `ocurrio un error  en le frontend al intentar enviar los datos del usuario para ser validado: ${error} `
+      );
+    }
+  };
+
+  const validatePosition = async (user) => {
+    try {
+      const {
+        data: { position },
+      } = await axios.post("http://192.168.18.222:4000/validate/position", {
+        user,
+      });
+
+      return position;
+    } catch (error) {
+      console.log(
+        `ocurrio un error en el frontend al intentar validar el cargo: ${error} `
+      );
     }
   };
 
@@ -564,15 +561,15 @@ const ContextApp = (props) => {
         CrearCookie: CrearCookie,
         EliminarCookie: EliminarCookie,
 
-        AgregarUsuario: AgregarUsuario,
-        ConsultarUsuarios: ConsultarUsuarios,
-        EditarUsuario: EditarUsuario,
-        EliminarUsuario: EliminarUsuario,
-        BuscarUsuarios: BuscarUsuarios,
-        usuarios: usuarios,
-        usuariosCopia: usuariosCopia,
-        HacerValidacionUsuario: HacerValidacionUsuario,
-        HacerValidacionCargo: HacerValidacionCargo,
+        createUser,
+        getUsers,
+        updateUser,
+        deleteUser,
+        searchUsers,
+        users,
+        usersCopy,
+        validateUser,
+        validatePosition,
 
         createRaw,
         getRaws,

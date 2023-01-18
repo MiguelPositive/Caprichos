@@ -53,7 +53,7 @@ const Login = () => {
   const [showcontrasena, setShowContrasena] = useState(false);
   const navigate = useNavigate();
 
-  const { cookies, CrearCookie, HacerValidacionUsuario, HacerValidacionCargo } =
+  const { cookies, CrearCookie, validateUser, validatePosition } =
     useContext(store);
 
   const handleChangeUsuario = (e) => {
@@ -65,11 +65,11 @@ const Login = () => {
   };
 
   const handleSubmit = async () => {
-    let verificador = await HacerValidacionUsuario(usuario, contrasena);
+    let verificador = await validateUser(usuario, contrasena);
+    let cargo = await validatePosition(usuario);
 
+    // console.log(cargo);
     if (verificador) {
-      let cargo = await HacerValidacionCargo(usuario);
-
       CrearCookie(true, usuario, cargo);
 
       if (cookies.get("cargo") == "cajero") {

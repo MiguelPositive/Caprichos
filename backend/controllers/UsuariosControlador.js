@@ -1,10 +1,10 @@
-const { modeloUsuarios } = require("../models/UsuariosModelo.js");
+const { usersModel } = require("../models/UsuariosModelo.js");
 
-const ConsultarUsuarios = async (req, res) => {
+const getUsers = async (req, res) => {
   try {
-    const usuarios = await modeloUsuarios.find().lean().exec();
+    const users = await usersModel.find().lean().exec();
 
-    res.send({ usuarios });
+    res.send({ users });
   } catch (error) {
     console.log(
       `ocurrio un error en el backend al intentar consultar los datos: ${error}`
@@ -12,13 +12,13 @@ const ConsultarUsuarios = async (req, res) => {
   }
 };
 
-const AgregarUsuario = async (req, res) => {
+const createUser = async (req, res) => {
   try {
-    const { usuario, contrasena, cargo } = req.body;
-    const nuevoEmpleado = modeloUsuarios({ usuario, contrasena, cargo });
+    const { user, password, position } = req.body;
+    const newUser = await usersModel({ user, password, position });
 
-    nuevoEmpleado.save();
-    res.json({ mensaje: true });
+    newUser.save();
+    res.sendStatus(200);
   } catch (error) {
     console.log(
       `ocurrio un error en el backend al intentar agregar el usaurio: ${error}`
@@ -26,19 +26,17 @@ const AgregarUsuario = async (req, res) => {
   }
 };
 
-//valida el usuario y contraseña para verificar que la persona tenga acceso
-const ValidarUsuario = async (req, res) => {
+const validateUser = async (req, res) => {
   try {
-    const { usuario, contrasena } = req.body;
+    const { user, password } = req.body;
 
-    console.log();
-    let temp = false;
-    (await modeloUsuarios.find()).forEach((iterador) => {
-      if (iterador.usuario === usuario && iterador.contrasena === contrasena) {
-        temp = true;
+    let isUser = false;
+    (await usersModel.find()).forEach((iterator) => {
+      if (iterator.user === user && iterator.password === password) {
+        isUser = true;
       }
     });
-    res.json({ mensaje: temp });
+    res.send({ isUser });
   } catch (error) {
     console.log(
       `ocurrio un error en el backend al intentar validar el usuario`
@@ -46,18 +44,17 @@ const ValidarUsuario = async (req, res) => {
   }
 };
 
-const ValidarCargo = async (req, res) => {
+const validatePosition = async (req, res) => {
   try {
-    const { usuario } = req.body;
-    let cargo = "";
+    const { user } = req.body;
+    let position;
 
-    (await modeloUsuarios.find()).forEach((iterador) => {
-      if (iterador.usuario == usuario) {
-        cargo = iterador.cargo;
+    (await usersModel.find()).forEach((iterator) => {
+      if (iterator.user == user) {
+        position = iterator.position;
       }
     });
-
-    res.json({ cargo: cargo });
+    res.send({ position });
   } catch (error) {
     console.log(
       `ocurrio un error al intentar validar el cargo en el backend ${error}`
@@ -65,15 +62,12 @@ const ValidarCargo = async (req, res) => {
   }
 };
 
-const EditarUsuario = async (req, res) => {
+const updateUser = async (req, res) => {
   try {
-    const { _id, usuario, contrasena, cargo } = req.body;
-    await modeloUsuarios.updateOne(
-      { _id },
-      { $set: { usuario, contrasena, cargo } }
-    );
+    const { _id, user, password, position } = req.body;
+    await usersModel.updateOne({ _id }, { $set: { user, password, position } });
 
-    res.json({ mensaje: true });
+    res.sendStatus(200);
   } catch (error) {
     console.log(
       `ocurrio un error en el backend al intentar editar el usuario: ${error}`
@@ -81,13 +75,13 @@ const EditarUsuario = async (req, res) => {
   }
 };
 
-const EliminarUsuario = async (req, res) => {
+const deleteUser = async (req, res) => {
   try {
     const { _id } = req.body;
 
-    await modeloUsuarios.deleteOne({ _id });
+    await usersModel.deleteOne({ _id });
 
-    res.json({ mensaje: true });
+    res.sendStatus(200);
   } catch (error) {
     console.log(
       `ocurrio un error en el backend al intentar eliminar el usuario: ${error}`
@@ -96,10 +90,10 @@ const EliminarUsuario = async (req, res) => {
 };
 
 module.exports = {
-  AgregarUsuario,
-  ValidarUsuario,
-  ValidarCargo,
-  ConsultarUsuarios,
-  EditarUsuario,
-  EliminarUsuario,
+  createUser,
+  getUsers,
+  updateUser,
+  deleteUser,
+  validateUser,
+  validatePosition,
 };

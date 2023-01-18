@@ -24,73 +24,89 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import BadgeIcon from "@mui/icons-material/Badge";
 
 //externos
+import { store } from "../context/ContextApp";
 import AgregarProducto from "../buttons/AgregarProducto";
 import Buscador from "../buttons/Buscador";
 import EliminarCerrar from "../buttons/EliminarCerrar";
 import AcccionesTabla from "../actions/AcccionesTabla";
-import { store } from "../context/ContextApp";
 import Guardar from "../buttons/Guardar";
 
 import "animate.css";
 import "../../styles/Crudos.css";
 
 const Usuarios = () => {
-  const {
-    ConsultarUsuarios,
-    usuariosCopia,
-    AgregarUsuario,
-    EditarUsuario,
-    EliminarUsuario,
-  } = useContext(store);
+  const { createUser, getUsers, updateUser, deleteUser, usersCopy } =
+    useContext(store);
 
-  const [modalUsuarios, setModalUsuarios] = useState(false);
+  const [modal, setModal] = useState(false);
 
-  const [mostrarContrasena, setMostrarContrasena] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const [usuario, setUsuario] = useState("");
-  const [contrasena, setContrasena] = useState("");
-  const [cargo, setCargo] = useState("");
+  const [id, setId] = useState("");
+  const [user, setUser] = useState("");
+  const [password, setPassword] = useState("");
+  const [position, setPosition] = useState("");
 
-  const [editor, setEditor] = useState(false);
+  const [editorMode, setEditorMode] = useState(false);
 
-  const [idUsuario, setIdUsuario] = useState("");
-
-  //funciones abrir y cerrar
-  const AbrirModalUsuarios = () => {
-    setModalUsuarios(true);
+  const clean = () => {
+    setId("");
+    setUser("");
+    setPassword("");
+    setPosition("");
   };
 
-  const CerrarModalUsuarios = () => {
-    setModalUsuarios(false);
+  const handleClickOpenModal = () => {
+    setModal(!modal);
   };
 
-  //funciones de cambio
-
-  const handlerChangeUsuario = (e) => {
-    setUsuario(e.target.value);
+  const handleClickCloseModal = () => {
+    setModal(false);
+    clean();
   };
 
-  const handlerChangeContrasena = (e) => {
-    setContrasena(e.target.value);
+  const handleChangeUser = (e) => {
+    setUser(e.target.value);
   };
 
-  const handlerChangeCargo = (e) => {
-    setCargo(e.target.value);
+  const handleChangePassword = (e) => {
+    setPassword(e.target.value);
   };
 
-  // funcion limpiar
-
-  const Limpiar = () => {
-    setIdUsuario("");
-    setUsuario("");
-    setContrasena("");
-    setCargo("");
+  const handleChangePosition = (e) => {
+    setPosition(e.target.value);
   };
 
-  //use effecs
+  const update = (data) => {
+    const { _id, user, password, position } = data;
+
+    setId(_id);
+    setUser(user);
+    setPassword(password);
+    setPosition(position);
+    setEditorMode(true);
+    handleClickOpenModal();
+  };
+
+  const handleSubmit = () => {
+    const newUser = {
+      _id: id,
+      user,
+      password,
+      position,
+    };
+    if (editorMode) {
+      updateUser(newUser);
+      handleClickCloseModal();
+      clean();
+    } else {
+      createUser(user);
+      handleClickCloseModal();
+    }
+  };
 
   useEffect(() => {
-    ConsultarUsuarios();
+    getUsers();
   }, []);
   return (
     <div
@@ -102,9 +118,9 @@ const Usuarios = () => {
           <AgregarProducto
             titulo={"Agregar Usuario"}
             accion={() => {
-              Limpiar();
-              setEditor(false);
-              AbrirModalUsuarios();
+              clean();
+              setEditorMode(false);
+              handleClickOpenModal();
             }}
           />
         </div>
@@ -137,25 +153,18 @@ const Usuarios = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {usuariosCopia.map((user) => (
+                      {usersCopy.map((user) => (
                         <TableRow key={user._id}>
-                          <TableCell align="center">{user.usuario} </TableCell>
-                          <TableCell align="center">
-                            {user.contrasena}
-                          </TableCell>
-                          <TableCell align="center">{user.cargo}</TableCell>
+                          <TableCell align="center">{user.user} </TableCell>
+                          <TableCell align="center">{user.password}</TableCell>
+                          <TableCell align="center">{user.position}</TableCell>
                           <TableCell align="center">
                             <AcccionesTabla
                               funcionEditar={() => {
-                                setIdUsuario(user._id);
-                                setUsuario(user.usuario);
-                                setContrasena(user.contrasena);
-                                setCargo(user.contrasena);
-                                setEditor(true);
-                                AbrirModalUsuarios();
+                                update(user);
                               }}
                               funcionEliminar={() => {
-                                EliminarUsuario(user._id);
+                                deleteUser(user._id);
                               }}
                             />
                           </TableCell>
@@ -170,14 +179,12 @@ const Usuarios = () => {
         </div>
       </div>
 
-      {/* Modal agregar - editar usuario */}
-
       <Modal
-        open={modalUsuarios}
-        onClose={CerrarModalUsuarios}
+        open={modal}
+        onClose={handleClickCloseModal}
         className="animate__animated animate__fadeIn"
       >
-        <Fade in={modalUsuarios} timeout={500}>
+        <Fade in={modal} timeout={500}>
           <Paper
             elevation={6}
             className="container modal-sinfocus"
@@ -197,7 +204,7 @@ const Usuarios = () => {
               style={{ display: "flex", justifyContent: "center" }}
             >
               <h5 style={{ textAlign: "center" }}>
-                {editor ? "Editar Usuario" : "Agregar Usuario"}
+                {editorMode ? "Editar Usuario" : "Agregar Usuario"}
               </h5>
             </div>
             <div className="row mt-4">
@@ -206,8 +213,8 @@ const Usuarios = () => {
                   variant="standard"
                   placeholder="Nombre de usuario"
                   fullWidth
-                  value={usuario || ""}
-                  onChange={handlerChangeUsuario}
+                  value={user || ""}
+                  onChange={handleChangeUser}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -225,18 +232,18 @@ const Usuarios = () => {
                   variant="standard"
                   placeholder="Contraseña"
                   fullWidth
-                  value={contrasena || ""}
-                  onChange={handlerChangeContrasena}
+                  value={password || ""}
+                  onChange={handleChangePassword}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
                         <div
                           style={{ cursor: "pointer" }}
                           onClick={() => {
-                            setMostrarContrasena(!mostrarContrasena);
+                            setShowPassword(!showPassword);
                           }}
                         >
-                          {mostrarContrasena ? (
+                          {showPassword ? (
                             <VisibilityIcon />
                           ) : (
                             <VisibilityOffIcon />
@@ -254,8 +261,8 @@ const Usuarios = () => {
                   variant="standard"
                   placeholder="Cargo"
                   fullWidth
-                  value={cargo || ""}
-                  onChange={handlerChangeCargo}
+                  value={position || ""}
+                  onChange={handleChangePosition}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -273,27 +280,11 @@ const Usuarios = () => {
               <div className="mr-4">
                 <EliminarCerrar
                   eliminar={false}
-                  accion={() => {
-                    Limpiar();
-                    CerrarModalUsuarios();
-                  }}
+                  accion={handleClickCloseModal}
                 />
               </div>
               <div>
-                <Guardar
-                  accion={
-                    editor
-                      ? () => {
-                          CerrarModalUsuarios();
-                          EditarUsuario(idUsuario, usuario, contrasena, cargo);
-                          setEditor(false);
-                        }
-                      : () => {
-                          CerrarModalUsuarios();
-                          AgregarUsuario(usuario, contrasena, cargo);
-                        }
-                  }
-                />
+                <Guardar accion={handleSubmit} />
               </div>
             </div>
           </Paper>
