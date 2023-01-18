@@ -1,23 +1,23 @@
-const { modeloVentas } = require("../models/VentasModelo.js");
-const { modeloProcesados } = require("../models/ProcesadosModelo.js");
+const { salesModel } = require("../models/VentasModelo.js");
+const { processedModel } = require("../models/ProcesadosModelo.js");
 
-const AgregarVenta = async (req, res) => {
+const createSale = async (req, res) => {
   try {
-    const { fecha, datosCliente, datosTransaccion, hora, esVenta } = req.body;
+    const { date, customerData, transactionData, hour, isSale } = req.body;
 
-    (await modeloProcesados.find()).forEach((procesados) => {
-      datosTransaccion.productos.forEach((productos) => {
-        productos.ingredientes.forEach(async (ingredientes) => {
-          if (procesados.nombre == ingredientes.nombre) {
-            await modeloProcesados.updateOne(
-              { _id: procesados._id },
+    (await processedModel.find()).forEach((processed) => {
+      transactionData.products.forEach((products) => {
+        products.ingredients.forEach(async (ingredients) => {
+          if (processed.name == ingredients.name) {
+            await processedModel.updateOne(
+              { _id: processed._id },
               {
                 $set: {
-                  nombre: procesados.nombre,
-                  cantidad:
-                    procesados.cantidad -
-                    ingredientes.cantidad * productos.cantidad,
-                  ingredientes: procesados.ingredientes,
+                  name: processed.name,
+                  quantity:
+                    processed.quantity -
+                    ingredients.quantity * products.quantity,
+                  ingredients: processed.ingredients,
                 },
               }
             );
@@ -26,15 +26,15 @@ const AgregarVenta = async (req, res) => {
       });
     });
 
-    const nuevaVenta = await modeloVentas({
-      fecha,
-      datosCliente,
-      datosTransaccion,
-      hora,
-      esVenta,
+    const newSale = await salesModel({
+      date,
+      customerData,
+      transactionData,
+      hour,
+      isSale,
     });
-    nuevaVenta.save();
-    res.json({ mensaje: true });
+    newSale.save();
+    res.sendStatus(200);
   } catch (error) {
     console.log(
       `ocurrio un error en el backend al intentar agregar la preventa o venta : ${error}`
@@ -42,10 +42,10 @@ const AgregarVenta = async (req, res) => {
   }
 };
 
-const ConsultarVentas = async (req, res) => {
+const getSales = async (req, res) => {
   try {
-    const ventas = await modeloVentas.find().lean().exec();
-    res.send({ ventas });
+    const sales = await salesModel.find().lean().exec();
+    res.send({ sales });
   } catch (error) {
     console.log(
       `ocurrio un error en el backend al inetntar consultar las ventas: ${error}`
@@ -53,27 +53,28 @@ const ConsultarVentas = async (req, res) => {
   }
 };
 
-const EditarPreventa = async (req, res) => {
+const updateSale = async (req, res) => {
   try {
-    const { _id, fecha, datosCliente, datosTransaccion, hora } = req.body;
+    const { _id, date, customerData, transactionData, hour, isSale } = req.body;
 
-    (await modeloVentas.find()).forEach(async (elemento) => {
-      if (_id == elemento._id) {
-        await modeloVentas.updateOne(
+    (await salesModel.find()).forEach(async (sale) => {
+      if (_id == sale._id) {
+        await salesModel.updateOne(
           { _id },
           {
             $set: {
-              fecha: elemento.fecha,
-              datosCliente,
-              datosTransaccion,
-              hora: elemento.hora,
+              date: sale.date,
+              customerData,
+              transactionData,
+              hora: sale.hour,
+              isSale: sale.isSale,
             },
           }
         );
       }
     });
 
-    res.json({ mensaje: true });
+    res.sendStatus(200);
   } catch (error) {
     console.log(
       `ocurrio un error en el frontend al intentar editar la venta: ${error}`
@@ -81,26 +82,26 @@ const EditarPreventa = async (req, res) => {
   }
 };
 
-const ConfirmarPreventa = async (req, res) => {
+const confirmSale = async (req, res) => {
   try {
     const { _id } = req.body;
 
-    (await modeloVentas.find()).map(async (elemento) => {
-      if (_id == elemento._id) {
-        await modeloVentas.updateOne(
+    (await salesModel.find()).map(async (sale) => {
+      if (_id == sale._id) {
+        await salesModel.updateOne(
           { _id },
           {
-            fecha: elemento.fecha,
-            datosCliente: elemento.datosCliente,
-            datosTransaccion: elemento.datosTransaccion,
-            hora: elemento.hora,
-            esVenta: true,
+            date: sale.date,
+            customerData: sale.customerData,
+            transactionData: sale.transactionData,
+            hour: sale.hour,
+            isSale: true,
           }
         );
       }
     });
 
-    res.json({ mensaje: true });
+    res.sendStatus(200);
   } catch (error) {
     console.log(
       `ocurrio un error en el backend al intentar confirmar la venta: ${error}`
@@ -108,11 +109,11 @@ const ConfirmarPreventa = async (req, res) => {
   }
 };
 
-const EliminarPreventa = async (req, res) => {
+const deleteSale = async (req, res) => {
   try {
     const { _id } = req.body;
-    await modeloVentas.deleteOne({ _id });
-    res.json({ mensaje: true });
+    await salesModel.deleteOne({ _id });
+    res.sendStatus(200);
   } catch (error) {
     console.log(
       `ocurrio un error en el backend la intentar eliminar la preventa o venta: ${error}`
@@ -121,9 +122,9 @@ const EliminarPreventa = async (req, res) => {
 };
 
 module.exports = {
-  AgregarVenta,
-  ConsultarVentas,
-  EditarPreventa,
-  EliminarPreventa,
-  ConfirmarPreventa,
+  createSale,
+  getSales,
+  updateSale,
+  deleteSale,
+  confirmSale,
 };

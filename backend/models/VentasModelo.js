@@ -1,27 +1,27 @@
 const mongoose = require("mongoose");
 
-const ventasEsquema = mongoose.Schema({
-  fecha: {
+const salesSchema = mongoose.Schema({
+  date: {
     type: String,
   },
-  datosCliente: {
+  customerData: {
     type: Object,
   },
 
-  datosTransaccion: {
+  transactionData: {
     type: Object,
   },
-  hora: {
+  hour: {
     type: String,
   },
 
-  esVenta: {
+  isSale: {
     type: Boolean,
   },
 });
 
-const modeloVentas = mongoose.model("ventas", ventasEsquema);
+const salesModel = mongoose.model("ventas", salesSchema);
 
 module.exports = {
-  modeloVentas,
+  salesModel,
 };

@@ -1,19 +1,19 @@
 const express = require("express");
 const {
-  AgregarVenta,
-  ConsultarVentas,
-  EditarPreventa,
-  EliminarPreventa,
-  ConfirmarPreventa,
+  createSale,
+  getSales,
+  updateSale,
+  deleteSale,
+  confirmSale,
 } = require("../controllers/VentasControlador.js");
 
 const VentasRouter = express.Router();
 
-VentasRouter.post("/agregar/venta", AgregarVenta);
-VentasRouter.get("/consultar/ventas", ConsultarVentas);
-VentasRouter.post("/editar/preventa", EditarPreventa);
-VentasRouter.post("/eliminar/preventa", EliminarPreventa);
-VentasRouter.post("/confirmar/preventa", ConfirmarPreventa);
+VentasRouter.post("/create/sale", createSale);
+VentasRouter.get("/get/sales", getSales);
+VentasRouter.post("/update/sale", updateSale);
+VentasRouter.post("/delete/sale", deleteSale);
+VentasRouter.post("/confirm/sale", confirmSale);
 
 module.exports = {
   VentasRouter,

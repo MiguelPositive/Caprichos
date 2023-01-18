@@ -557,7 +557,7 @@ const Procesados = () => {
               <div className="mr-4">
                 <EliminarCerrar
                   eliminar={false}
-                  accion={handleClickCloseIngredientsdModal}
+                  accion={handleClickOpenIngredientsModal}
                 />
               </div>
 

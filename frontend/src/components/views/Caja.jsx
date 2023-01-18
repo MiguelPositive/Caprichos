@@ -5,9 +5,8 @@ import { useContext } from "react";
 import { useEffect } from "react";
 
 //material react ui
-import { Box, FormControl, InputLabel } from "@mui/material";
+import { Box } from "@mui/material";
 import { Paper } from "@mui/material";
-import { Button } from "@mui/material";
 import { TextField } from "@mui/material";
 import { InputAdornment } from "@mui/material";
 import { Modal } from "@mui/material";
@@ -45,373 +44,388 @@ import "../../styles/Caja.css";
 
 const Caja = () => {
   const {
-    ConsultarPizzas,
-    pizzas,
-    AgregarVenta,
-    ConsultarVentas,
-    ventasCopia,
     cookies,
-    EditarPreventa,
-    EliminarPreventa,
-    ConfirmarPreventa,
-  } = useContext(NombreContexto);
 
-  const [modalPizzas, setModalPizzas] = useState(false);
+    getPizzas,
+    pizzas,
 
-  //datos del cliente
-  const [nombre, setNombre] = useState("");
+    createSale,
+    getSales,
+    salesCopy,
+
+    updateSale,
+    deleteSale,
+    confirmSale,
+  } = useContext(store);
+
+  const [pizzasModal, setPizzasModal] = useState(false);
+  const [detailsModal, setDetailsModal] = useState(false);
+
+  const [customerName, setCustomerName] = useState("");
   const [cedula, setCedula] = useState("");
-  const [telefono, setTelefono] = useState("");
-  const [direccion, setDireccion] = useState("");
+  const [phone, setPhone] = useState("");
+  const [direction, SetDirection] = useState("");
+  const [tempName, setTempName] = useState("");
 
-  //lista de pizzas que van a estar en la tabla
-  const [productos, setProductos] = useState([]);
-
-  //cantidad de pizzas que va estar cambiando
-  const [cantidad, setCantidad] = useState(1);
-
-  const [nombreTemporal, setNombreTemporal] = useState("");
-
+  const [products, setProducts] = useState([]);
+  const [quantity, setquantity] = useState(1);
   const [subtotal, setSubTotal] = useState(0);
   const [total, setTotal] = useState(0);
-  const [domicilio, setDomicilio] = useState(0);
+  const [sendValue, setSendValue] = useState(0);
 
-  const [modalDetalles, setModalDetalles] = useState(false);
-  const [datosImprimir, setDatosImprimir] = useState([]);
+  const [modeEditor, setModeEditor] = useState(false);
 
-  const [editor, setEditor] = useState(false);
+  const [printData, setPrintData] = useState([]);
 
-  let cargo = cookies.get("cargo");
+  let position = cookies.get("cargo");
+  let date;
+  let customerData;
+  let transactionData;
+  let hour;
+  let isSale;
 
-  //datos que van a ser enviados a la db
-
-  let fechaActual;
-  let datosCliente;
-  let datosTransaccion;
-  let hora;
-  let esVenta;
-
-  //funciones abrir y cerrar
-
-  const AbrirModalPizzas = () => {
-    setModalPizzas(true);
+  const cleanCustomerData = () => {
+    setCustomerName("");
+    setCedula("");
+    setPhone("");
+    SetDirection("");
   };
 
-  const CerrarModalPizzas = () => {
-    setModalPizzas(false);
+  const cleanTransactionData = () => {
+    setProducts([]);
+    setSendValue("");
+    setquantity("");
   };
 
-  const AbrirDetalles = () => {
-    setModalDetalles(!modalDetalles);
+  const cleanAll = () => {
+    cleanCustomerData();
+    cleanTransactionData();
+    setModeEditor(false);
   };
 
-  //funciones de cambio
-  const handleChangeNombre = (e) => {
-    setNombre(e.target.value);
+  const handleClickOpenPizzasModal = () => {
+    setPizzasModal(true);
+  };
+
+  const handleClickClosePizzasModal = () => {
+    setPizzasModal(false);
+  };
+
+  const handleClickOpenDetailsModal = () => {
+    setDetailsModal(!detailsModal);
+  };
+
+  const handleChangeName = (e) => {
+    setCustomerName(e.target.value);
   };
 
   const handleChangeCedula = (e) => {
     setCedula(parseInt(e.target.value));
   };
 
-  const handleChangeTelefono = (e) => {
-    setTelefono(e.target.value);
+  const handleChangePhone = (e) => {
+    setPhone(e.target.value);
   };
 
-  const handleChangeDireccion = (e) => {
-    setDireccion(e.target.value);
+  const handleChangeDirection = (e) => {
+    SetDirection(e.target.value);
   };
 
-  const handleChangeCantidadProducto = (e) => {
-    setCantidad(parseInt(e.target.value));
+  const handleChangeProductQuantity = (e) => {
+    setquantity(parseInt(e.target.value));
   };
 
-  const handlechangeNombreTemporal = (nombree) => {
-    setNombreTemporal(nombree);
+  const handlechangeTempName = (name) => {
+    setTempName(name);
   };
 
-  const handleChangeDomicilio = (e) => {
-    setDomicilio(parseInt(e.target.value));
+  const handleChangeSendValue = (e) => {
+    setSendValue(parseInt(e.target.value));
   };
 
-  //funciones añadir
+  const addPizza = (pizza) => {
+    const { _id, name, cost, ingredients } = pizza;
 
-  //estas seran las pizzas que seran agregadas a la tabla
-  const AgregarPizzas = (id, nombree, precioo, ingredientess) => {
-    const objeto = {
-      idPizza: id,
-      nombre: nombree,
-      cantidad: 1,
-      valorUnidad: precioo,
-      valorTotal: precioo * 1,
-      ingredientes: ingredientess,
+    const newProduct = {
+      idPizza: _id,
+      name,
+      quantity: 1,
+      unitValue: cost,
+      totalValue: cost * 1,
+      ingredients,
     };
 
-    setProductos([...productos, objeto]);
+    setProducts([...products, newProduct]);
   };
 
-  const EnviarDatos = () => {
-    const cliente = {
-      nombre: nombre,
-      cedula: cedula,
-      telefono: telefono,
-      direccion: direccion,
-    };
-
-    const transaccion = {
-      productos: productos,
-      subtotal: subtotal,
-      total: total,
-      valorDomicilio: domicilio,
-      pagoCliente: 0,
-      devueltos: 0,
-    };
-
-    fechaActual = moment().format("DD/MM/YYYY");
-    datosCliente = cliente;
-    datosTransaccion = transaccion;
-    hora = moment().format("LT");
-    esVenta = false;
-  };
-
-  //funciones de subtotal y total
-
-  const RealizarSubtotal = (nombre) => {
-    let productosAlterados = productos.map((iterador) => {
-      if (iterador.nombre == nombre) {
-        iterador.cantidad = cantidad;
-        iterador.valorTotal = iterador.valorUnidad * cantidad;
+  const calculateSubtotal = (name) => {
+    let filteredProducts = products.map((product) => {
+      if (product.name == name) {
+        product.quantity = quantity;
+        product.totalValue = product.unitValue * quantity;
       }
-      return iterador;
+      return product;
     });
 
-    setProductos(productosAlterados);
+    setProducts(filteredProducts);
   };
 
-  const ActualizarSubTotal = () => {
-    let temp = 0;
-    productos.forEach((iterador) => {
-      temp = temp + iterador.valorTotal;
-      return temp;
+  const updateSubtotal = () => {
+    let newSubtotal = 0;
+    products.forEach((product) => {
+      newSubtotal += product.totalValue;
+      return newSubtotal;
     });
 
-    setSubTotal(temp);
+    setSubTotal(newSubtotal);
   };
 
-  const ActualizarTotal = () => {
-    setTotal(subtotal + domicilio);
+  const updateTotal = () => {
+    setTotal(subtotal + sendValue);
   };
 
-  //funciones editar
-
-  const PreparaEdicion = () => {
-    //primero valido si es una venta o prevente y luego
-    // valido si el cargo del usuario le permite editar esa venta
-
-    const Ejecutar = () => {
-      setEditor(true);
-      setNombre(datosImprimir.datosCliente.nombre);
-      setCedula(datosImprimir.datosCliente.cedula);
-      setTelefono(datosImprimir.datosCliente.telefono);
-      setDireccion(datosImprimir.datosCliente.direccion);
-      setProductos(datosImprimir.datosTransaccion.productos);
-      setDomicilio(datosImprimir.datosTransaccion.valorDomicilio);
+  const update = () => {
+    const assignValues = () => {
+      setModeEditor(true);
+      setCustomerName(printData.customerData.name);
+      setCedula(printData.customerData.cedula);
+      setPhone(printData.customerData.phone);
+      SetDirection(printData.customerData.direction);
+      setProducts(printData.transactionData.products);
+      setSendValue(printData.transactionData.sendValue);
     };
 
-    //esVenta se inicializa como false, es decir, como una preventa
-    if (!datosImprimir.esVenta) {
-      Ejecutar();
+    if (!printData.isSale) {
+      assignValues();
     } else {
-      if (cargo == "admin" || cargo == "visitante") {
-        Ejecutar();
+      if (position == "admin" || position == "visitante") {
+        assignValues();
       } else {
         alert("no tiene autorizacion para editar una venta");
       }
     }
   };
 
-  const Confirmar = () => {
-    if (datosImprimir.esVenta) {
-      alert("ya es una venta");
+  const handleSubmit = () => {
+    customerData = {
+      name: customerName,
+      cedula,
+      phone,
+      direction,
+    };
+
+    transactionData = {
+      products,
+      subtotal,
+      total,
+      sendValue,
+      customerPay: 0,
+      returned: 0,
+    };
+
+    date = moment().format("DD/MM/YYYY");
+    hour = moment().format("LT");
+    isSale = false;
+
+    if (modeEditor) {
+      updateSale(
+        printData._id,
+        date,
+        customerData,
+        transactionData,
+        hour,
+        isSale
+      );
+      cleanAll();
     } else {
-      AbrirDetalles();
-      ConfirmarPreventa(datosImprimir._id);
+      customerData = {
+        name: customerName,
+        cedula,
+        phone,
+        direction,
+      };
+
+      transactionData = {
+        products,
+        subtotal,
+        total,
+        sendValue,
+        customerPay: 0,
+        returned: 0,
+      };
+
+      date = moment().format("DD/MM/YYYY");
+      hour = moment().format("LT");
+      isSale = false;
+
+      createSale(date, customerData, transactionData, hour, isSale);
+
+      cleanAll();
     }
   };
 
-  //funciones eliminar
-
-  const EliminarProducto = (nombre) => {
-    let quitar = 0;
-    const productosResultantes = productos.filter((iterador) => {
-      if (iterador.nombre != nombre) {
-        return iterador;
-      } else if (iterador.nombre == nombre) {
-        quitar = iterador.valorTotal;
-      }
-    });
-
-    setProductos(productosResultantes);
-    setSubTotal(subtotal - quitar);
+  const confirm = () => {
+    if (printData.isSale) {
+      alert("ya es una venta");
+    } else {
+      handleClickOpenDetailsModal();
+      confirmSale(printData);
+    }
   };
 
-  // funciones imprimir factura
-
-  const Imprimir = () => {
+  const showInvoice = () => {
     let ventana = window.open();
     ventana.document.write(`
     
     
-      <html lang="sp">
-        <head>
-          <meta charset="UTF-8" />
-          <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-          <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0"
-          />
-          <title>Factura de venta</title>
-        </head>
-        <body>
-          <div
-            class="contenedor"
-            style="
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-family: 'Roboto';
-      "
-          >
-            <div
-              class="factura"
-              style="
-          border-radius: 1rem;
-          border: 1px solid gray;
-          padding: 0.5rem;
-          width: 20rem;
-        "
-            >
-              <div style="display: flex; justify-content: center; align-items: center">
-                <img src="${logo}" width="70%" />
-              </div>
-              <div style="width: 100%; text-align: center">
-                ${datosImprimir.fecha}
-              </div>
-              <div style="width: 100%; text-align: center">
-                NIT 1098807621-8
-              </div>
-              <div style="width: 100%; text-align: center">
-                Cra. 28 #50 - 40, Sotomayor
-              </div>
-              <div style="width: 100%; text-align: center">
-                Bucaramanga, Santander
-              </div>
-              <div style="width: 100%; text-align: center">300 6550004</div>
-              <div style="width: 100%; text-align: center">
-                Regimen Simplificado
-              </div>
-              <div style="width: 100%; text-align: center">Responsable</div>
-              <div style="width: 100%; text-align: center">
-                Carlos Iván Suarez Perez
-              </div>
-              <div style="width: 100%; text-align: center">
-                Codigo de Factura
-              </div>
-              <div style="width: 100%; text-align: center">
-                ${datosImprimir._id}
-              </div>
-              <div style="width: 100%; text-align: center; margin-top: 0.5rem ">
-                Cliente: ${datosImprimir.datosCliente.nombre}
-              </div>
-              <div style="width: 100%; text-align: center">
-                Cedula: ${datosImprimir.datosCliente.cedula}
-              </div>
-              <div style="width: 100%; text-align: center">
-                Telefono: ${datosImprimir.datosCliente.telefono}
-              </div>
-              <div style="width: 100%; text-align: center">
-                Domicilo: ${datosImprimir.datosCliente.direccion}
-              </div>
-              `);
+          <html lang="sp">
+            <head>
+              <meta charset="UTF-8" />
+              <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+              <meta
+                name="viewport"
+                content="width=device-width, initial-scale=1.0"
+              />
+              <title>Factura de venta</title>
+            </head>
+            <body>
+              <div
+                class="contenedor"
+                style="
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Roboto';
+          "
+              >
+                <div
+                  class="factura"
+                  style="
 
-    datosImprimir.datosTransaccion.productos.forEach((iterador) => {
+                  border-radius: 1rem;
+                  border: 1px solid gray;
+                  padding: 0.5rem;
+                  width: 20rem;" >
+
+                  <div style="display: flex; justify-content: center; align-items: center">
+                    <img src="${logo}" width="70%" />
+                  </div>
+                  <div style="width: 100%; text-align: center">
+                    ${printData.fecha}
+                  </div>
+                  <div style="width: 100%; text-align: center">
+                    NIT 1098807621-8
+                  </div>
+                  <div style="width: 100%; text-align: center">
+                    Cra. 28 #50 - 40, Sotomayor
+                  </div>
+                  <div style="width: 100%; text-align: center">
+                    Bucaramanga, Santander
+                  </div>
+                  <div style="width: 100%; text-align: center">300 6550004</div>
+                  <div style="width: 100%; text-align: center">
+                    Regimen Simplificado
+                  </div>
+                  <div style="width: 100%; text-align: center">Responsable</div>
+                  <div style="width: 100%; text-align: center">
+                    Carlos Iván Suarez Perez
+                  </div>
+                  <div style="width: 100%; text-align: center">
+                    Codigo de Factura
+                  </div>
+                  <div style="width: 100%; text-align: center">
+                    ${printData._id}
+                  </div>
+                  <div style="width: 100%; text-align: center; margin-top: 0.5rem ">
+                    Cliente: ${printData.customerData.name}
+                  </div>
+                  <div style="width: 100%; text-align: center">
+                    Cedula: ${printData.customerData.cedula}
+                  </div>
+                  <div style="width: 100%; text-align: center">
+                    Telefono: ${printData.customerData.phone}
+                  </div>
+                  <div style="width: 100%; text-align: center">
+                    Domicilo: ${printData.customerData.direction}
+                  </div>
+                  `);
+
+    printData.transactionData.products.forEach((product) => {
       ventana.document.write(`
       
       <div style="width: 100%; text-align: center">
-      Producto: ${iterador.nombre} 
+      Producto: ${product.name} 
       <br/>
-      Cantidad: ${iterador.cantidad} 
-      <br/> valor: ${iterador.valorTotal}
+      Cantidad: ${product.quantity} 
+      <br/> valor: ${product.totalValue}
     </div>`);
     });
 
     ventana.document.write(`
               <div style="width: 100%; text-align: center">
-                Valor Domicilio: ${datosImprimir.datosTransaccion.valorDomicilio}
+                Valor Domicilio: ${printData.transactionData.sendValue}
               </div>
               <div style="width: 100%; text-align: center">
-                Total: ${datosImprimir.datosTransaccion.total}
+                Total: ${printData.transactionData.totalValue}
               </div>
               <div style="width: 100%; text-align: center">
-                Valor Pagado: ${datosImprimir.datosTransaccion.pagoCliente}
+                Valor Pagado: ${printData.transactionData.customerPay}
               </div>
               <div style="width: 100%; text-align: center">
-                Vueltos: ${datosImprimir.datosTransaccion.devueltos}
+                Vueltos: ${printData.transactionData.returned}
               </div>
             </div>
           </div>
         </body>
       </html>
     `);
-
-    // ventana.print();
   };
 
-  //funciones limpiar
+  const deleteProduct = (name) => {
+    let substract = 0;
+    const filteredProducts = products.filter((product) => {
+      if (product.name != name) {
+        return product;
+      } else if (product.name == name) {
+        substract = product.totalValue;
+      }
+    });
 
-  const LimpiarDatosCliente = () => {
-    setNombre("");
-    setCedula("");
-    setTelefono("");
-    setDireccion("");
+    setProducts(filteredProducts);
+    setSubTotal(subtotal - substract);
   };
 
-  const LimpiarDatosTransaccion = () => {
-    setProductos([]);
-    setDomicilio("");
-    setCantidad("");
+  const eraseSale = () => {
+    if (printData.isSale) {
+      if (position == "admin" || position == "visitante") {
+        handleClickOpenDetailsModal();
+        deleteSale(printData);
+        cleanAll();
+      }
+    } else {
+      handleClickOpenDetailsModal();
+      deleteSale(printData);
+      cleanAll();
+    }
   };
-
-  const LimpiarTodo = () => {
-    setNombre("");
-    setCedula("");
-    setTelefono("");
-    setDireccion("");
-    setProductos([]);
-    setDomicilio("");
-    setCantidad("");
-    setDatosImprimir([]);
-  };
-
-  //use effecs
 
   useEffect(() => {
-    ConsultarPizzas();
-    ConsultarVentas();
+    getPizzas();
+    getSales();
   }, []);
 
   useEffect(() => {
-    RealizarSubtotal(nombreTemporal);
-  }, [cantidad]);
+    calculateSubtotal(tempName);
+  }, [quantity]);
 
   useEffect(() => {
-    ActualizarSubTotal();
-  }, [productos]);
+    updateSubtotal();
+  }, [products]);
 
   useEffect(() => {
-    ActualizarTotal();
-  }, [subtotal, domicilio]);
+    updateTotal();
+  }, [subtotal, sendValue]);
 
   return (
     <Box
@@ -447,8 +461,8 @@ const Caja = () => {
               <TextField
                 placeholder="Nombre del Cliente"
                 variant="standard"
-                value={nombre}
-                onChange={handleChangeNombre}
+                value={customerName || ""}
+                onChange={handleChangeName}
                 fullWidth
                 InputProps={{
                   startAdornment: (
@@ -464,7 +478,7 @@ const Caja = () => {
                 placeholder="CC del Cliente"
                 type="number"
                 variant="standard"
-                value={cedula}
+                value={cedula || ""}
                 onChange={handleChangeCedula}
                 fullWidth
                 InputProps={{
@@ -482,8 +496,8 @@ const Caja = () => {
                 placeholder="Telefono del Cliente"
                 type="number"
                 variant="standard"
-                value={telefono}
-                onChange={handleChangeTelefono}
+                value={phone || ""}
+                onChange={handleChangePhone}
                 fullWidth
                 InputProps={{
                   startAdornment: (
@@ -498,8 +512,8 @@ const Caja = () => {
               <TextField
                 placeholder="Dirección del Cliente"
                 variant="standard"
-                value={direccion}
-                onChange={handleChangeDireccion}
+                value={direction || ""}
+                onChange={handleChangeDirection}
                 fullWidth
                 InputProps={{
                   startAdornment: (
@@ -519,7 +533,7 @@ const Caja = () => {
                 justifyContent: "center",
               }}
             >
-              <Limpiar accion={LimpiarDatosCliente} />
+              <Limpiar accion={cleanCustomerData} />
             </div>
           </Paper>
         </div>
@@ -539,7 +553,7 @@ const Caja = () => {
               <div className="col-sm-6 col-md-6 col-lg-6 btn-agregar-pizza">
                 <AgregarProducto
                   titulo={"Agregar Pizza"}
-                  accion={AbrirModalPizzas}
+                  accion={handleClickOpenPizzasModal}
                 />
               </div>
 
@@ -550,7 +564,6 @@ const Caja = () => {
 
             <div className="row mt-4">
               <div className="col-sm-12 col-md-12 col-lg-12 ">
-                {/* Tabla de pizzas a vender */}
                 <Paper
                   elevation={6}
                   className="table-responsive"
@@ -579,28 +592,26 @@ const Caja = () => {
                       </TableHead>
 
                       <TableBody>
-                        {productos.map((iterador) => (
-                          <TableRow key={iterador.idPizza}>
-                            <TableCell align="center">
-                              {iterador.nombre}
-                            </TableCell>
+                        {products.map((product) => (
+                          <TableRow key={product.idPizza}>
+                            <TableCell align="center">{product.name}</TableCell>
                             <TableCell align="center">
                               <TextField
                                 variant="standard"
                                 type="number"
-                                value={iterador.cantidad}
+                                value={product.quantity || ""}
                                 onChange={(e) => {
-                                  handleChangeCantidadProducto(e);
-                                  handlechangeNombreTemporal(iterador.nombre);
+                                  handleChangeProductQuantity(e);
+                                  handlechangeTempName(product.name);
                                 }}
                               />
                             </TableCell>
                             <TableCell align="center">
-                              {iterador.valorUnidad}
+                              {product.unitValue}
                             </TableCell>
 
                             <TableCell align="center">
-                              {iterador.valorTotal}
+                              {product.totalValue}
                             </TableCell>
 
                             <TableCell
@@ -612,7 +623,7 @@ const Caja = () => {
                               <EliminarCerrar
                                 eliminar={true}
                                 accion={() => {
-                                  EliminarProducto(iterador.nombre);
+                                  deleteProduct(product.name);
                                 }}
                               />
                             </TableCell>
@@ -643,7 +654,7 @@ const Caja = () => {
                   }}
                 >
                   <b>Subtotal: </b>
-                  {subtotal}
+                  {subtotal || ""}
                 </div>
               </div>
 
@@ -657,7 +668,7 @@ const Caja = () => {
                   }}
                 >
                   <b>Total: </b>
-                  {total}
+                  {total || ""}
                 </div>
               </div>
             </div>
@@ -668,8 +679,8 @@ const Caja = () => {
                   size="small"
                   label="valor del domicilio"
                   type="number"
-                  value={domicilio}
-                  onChange={handleChangeDomicilio}
+                  value={sendValue || ""}
+                  onChange={handleChangeSendValue}
                 />
               </div>
               <div
@@ -681,37 +692,10 @@ const Caja = () => {
                 }}
               >
                 <div className="mr-4">
-                  <Limpiar accion={LimpiarDatosTransaccion} />
+                  <Limpiar accion={cleanTransactionData} />
                 </div>
                 <div>
-                  <Guardar
-                    accion={
-                      editor
-                        ? () => {
-                            EnviarDatos();
-                            EditarPreventa(
-                              datosImprimir._id,
-                              fechaActual,
-                              datosCliente,
-                              datosTransaccion,
-                              hora
-                            );
-                            setEditor(false);
-                            LimpiarTodo();
-                          }
-                        : () => {
-                            EnviarDatos();
-                            AgregarVenta(
-                              fechaActual,
-                              datosCliente,
-                              datosTransaccion,
-                              hora,
-                              esVenta
-                            );
-                            LimpiarTodo();
-                          }
-                    }
-                  />
+                  <Guardar accion={handleSubmit} />
                 </div>
               </div>
             </div>
@@ -725,7 +709,6 @@ const Caja = () => {
             className="table-responsive"
             sx={{ borderRadius: "1rem", marginBottom: "4rem", height: "20rem" }}
           >
-            {/* Tabla de ventas y preventas */}
             <TableContainer>
               <Table>
                 <TableHead>
@@ -751,19 +734,19 @@ const Caja = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {ventasCopia.map((iterador) => (
-                    <TableRow key={iterador._id}>
-                      <TableCell align="center"> {iterador.fecha}</TableCell>
-                      <TableCell align="center">{iterador.hora}</TableCell>
+                  {salesCopy.map((sale) => (
+                    <TableRow key={sale._id}>
+                      <TableCell align="center"> {sale.date}</TableCell>
+                      <TableCell align="center">{sale.hour}</TableCell>
                       <TableCell align="center">
-                        {iterador.datosCliente.nombre}
+                        {sale.customerData.name}
                       </TableCell>
 
                       <TableCell align="center">
-                        {iterador.datosCliente.cedula}
+                        {sale.customerData.cedula}
                       </TableCell>
                       <TableCell align="center">
-                        {iterador.datosTransaccion.total}
+                        {sale.transactionData.total}
                       </TableCell>
                       <TableCell
                         align="center"
@@ -775,9 +758,8 @@ const Caja = () => {
                       >
                         <Detalles
                           accion={() => {
-                            setDatosImprimir(iterador);
-
-                            AbrirDetalles();
+                            setPrintData(sale);
+                            handleClickOpenDetailsModal();
                           }}
                         />
                       </TableCell>
@@ -789,13 +771,13 @@ const Caja = () => {
           </Paper>
         </div>
       </div>
-      {/* Modal para agregar pizzas a la pre-venta */}
+
       <Modal
-        open={modalPizzas}
-        onClose={CerrarModalPizzas}
+        open={pizzasModal}
+        onClose={handleClickClosePizzasModal}
         className="animate__animated animate__fadeIn"
       >
-        <Fade in={modalPizzas} timeout={500}>
+        <Fade in={pizzasModal} timeout={500}>
           <Paper
             elevation={6}
             className="container modal-sinfocus"
@@ -816,7 +798,10 @@ const Caja = () => {
                 left: "17rem",
               }}
             >
-              <EliminarCerrar eliminar={false} accion={CerrarModalPizzas} />
+              <EliminarCerrar
+                eliminar={false}
+                accion={handleClickClosePizzasModal}
+              />
             </div>
             <div className="row">
               <div className="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -831,7 +816,6 @@ const Caja = () => {
                 paddingBottom: "1rem",
               }}
             >
-              {/* Tabla de añadir pizzas */}
               <Paper
                 elevation={6}
                 sx={{ width: "15rem", height: "10rem" }}
@@ -840,20 +824,13 @@ const Caja = () => {
                 <TableContainer>
                   <Table size="small">
                     <TableBody>
-                      {pizzas.map((iterador) => (
-                        <TableRow key={iterador._id}>
-                          <TableCell align="center">
-                            {iterador.nombre}
-                          </TableCell>
+                      {pizzas.map((pizza) => (
+                        <TableRow key={pizza._id}>
+                          <TableCell align="center">{pizza.name}</TableCell>
                           <TableCell align="center">
                             <Agregar
                               accion={() => {
-                                AgregarPizzas(
-                                  iterador._id,
-                                  iterador.nombre,
-                                  iterador.precio,
-                                  iterador.ingredientes
-                                );
+                                addPizza(pizza);
                               }}
                             />
                           </TableCell>
@@ -867,13 +844,13 @@ const Caja = () => {
           </Paper>
         </Fade>
       </Modal>
-      {/* Modal para abrir los detalles de la preventa */}
+
       <Modal
-        open={modalDetalles}
-        onClose={AbrirDetalles}
+        open={detailsModal}
+        onClose={handleClickOpenDetailsModal}
         className="animate__animated animate__fadeIn"
       >
-        <Fade in={modalDetalles} timeout={500}>
+        <Fade in={detailsModal} timeout={500}>
           <Paper
             elevation={6}
             className="contenedor-detalles modal-sinfocus container"
@@ -897,8 +874,8 @@ const Caja = () => {
                 <EliminarCerrar
                   eliminar={false}
                   accion={() => {
-                    AbrirDetalles();
-                    LimpiarTodo();
+                    handleClickOpenDetailsModal();
+                    cleanAll();
                   }}
                 />
               </div>
@@ -908,27 +885,22 @@ const Caja = () => {
               <div className="col-sm-6 col-md-6 col-lg-6 detalles">
                 <EditarPreventa_boton
                   accion={() => {
-                    AbrirDetalles();
-                    PreparaEdicion();
+                    handleClickOpenDetailsModal();
+                    update();
                   }}
                 />
               </div>
               <div className="col-sm-6 col-md-6 col-lg-6 detalles">
-                <EliminarPreventa_boton
-                  accion={() => {
-                    AbrirDetalles();
-                    EliminarPreventa(datosImprimir._id);
-                  }}
-                />
+                <EliminarPreventa_boton accion={eraseSale} />
               </div>
             </div>
 
             <div className="row mt-4">
               <div className="col-sm-6 col-md-6 col-lg-6 detalles">
-                <ConfirmarPreventa_boton accion={Confirmar} />
+                <ConfirmarPreventa_boton accion={confirm} />
               </div>
               <div className="col-sm-6 col-md-6 col-lg-6 detalles">
-                <ImprimirFactura accion={Imprimir} />
+                <ImprimirFactura accion={showInvoice} />
               </div>
             </div>
           </Paper>

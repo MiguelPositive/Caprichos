@@ -38,8 +38,8 @@ const ContextApp = (props) => {
 
   //variables de ventas
 
-  const [ventas, setVentas] = useState([]);
-  const [ventasCopia, setVentasCopia] = useState([]);
+  const [sales, setSales] = useState([]);
+  const [salesCopy, setSalesCopy] = useState([]);
 
   //abrir menu lateral
   const handleOpenMenu = () => {
@@ -338,7 +338,7 @@ const ContextApp = (props) => {
     }
   };
 
-  const createPizza = async (name, cost, ingredients) => {
+  const createPizza = async ({ name, cost, ingredients }) => {
     try {
       await axios.post("http://192.168.18.222:4000/create/pizza", {
         name,
@@ -370,7 +370,7 @@ const ContextApp = (props) => {
     }
   };
 
-  const updatePizza = async (_id, name, cost, ingredients) => {
+  const updatePizza = async ({ _id, name, cost, ingredients }) => {
     await axios.post("http://192.168.18.222:4000/update/pizza", {
       _id,
       name,
@@ -418,13 +418,14 @@ const ContextApp = (props) => {
     }
   };
 
-  //funciones de ventas
-
-  const ConsultarVentas = async () => {
+  const getSales = async () => {
     try {
-      const res = axios.get("http://192.168.18.222:4000/consultar/ventas");
-      setVentas((await res).data.ventas);
-      setVentasCopia((await res).data.ventas);
+      const {
+        data: { sales },
+      } = await axios.get("http://192.168.18.222:4000/get/sales");
+
+      setSales(sales);
+      setSalesCopy(sales);
     } catch (error) {
       console.log(
         `ocurrio un error en el frontend al intentar consultar las ventas`
@@ -432,26 +433,24 @@ const ContextApp = (props) => {
     }
   };
 
-  const AgregarVenta = async (
-    fecha,
-    datosCliente,
-    datosTransaccion,
-    hora,
-    esVenta
+  const createSale = async (
+    date,
+    customerData,
+    transactionData,
+    hour,
+    isSale
   ) => {
     try {
-      const res = axios.post("http://192.168.18.222:4000/agregar/venta", {
-        fecha,
-        datosCliente,
-        datosTransaccion,
-        hora,
-        esVenta,
+      await axios.post("http://192.168.18.222:4000/create/sale", {
+        date,
+        customerData,
+        transactionData,
+        hour,
+        isSale,
       });
 
-      if ((await res).data.mensaje) {
-        exito();
-        ConsultarVentas();
-      }
+      exito();
+      getSales();
     } catch (error) {
       console.log(
         `ocurrio un error en el frontend al intentar agregar la preventa o venta: ${error}`
@@ -459,26 +458,26 @@ const ContextApp = (props) => {
     }
   };
 
-  const EditarPreventa = async (
+  const updateSale = async (
     _id,
-    fecha,
-    datosCliente,
-    datosTransaccion,
-    hora
+    date,
+    customerData,
+    transactionData,
+    hour,
+    isSale
   ) => {
     try {
-      const res = axios.post("http://192.168.18.222:4000/editar/preventa", {
+      await axios.post("http://192.168.18.222:4000/update/sale", {
         _id,
-        fecha,
-        datosCliente,
-        datosTransaccion,
-        hora,
+        date,
+        customerData,
+        transactionData,
+        hour,
+        isSale,
       });
 
-      if ((await res).data.mensaje) {
-        exito();
-        ConsultarVentas();
-      }
+      exito();
+      getSales();
     } catch (error) {
       console.log(
         `ocurrio un error en el frontend al intentar editar la venta: ${error}`
@@ -486,19 +485,14 @@ const ContextApp = (props) => {
     }
   };
 
-  const EliminarPreventa = async (_id) => {
+  const deleteSale = async ({ _id }) => {
     try {
-      const res = await axios.post(
-        "http://192.168.18.222:4000/eliminar/preventa",
-        {
-          _id,
-        }
-      );
+      await axios.post("http://192.168.18.222:4000/delete/sale", {
+        _id,
+      });
 
-      if ((await res).data.mensaje) {
-        exito();
-        ConsultarVentas();
-      }
+      exito();
+      getSales();
     } catch (error) {
       console.log(
         `ocurrio un error en el frontend al intentar eliminar la preventa: ${error}`
@@ -506,15 +500,13 @@ const ContextApp = (props) => {
     }
   };
 
-  const ConfirmarPreventa = async (_id) => {
-    const res = axios.post("http://192.168.18.222:4000/confirmar/preventa", {
+  const confirmSale = async ({ _id }) => {
+    await axios.post("http://192.168.18.222:4000/confirm/sale", {
       _id,
     });
 
-    if ((await res).data.mensaje) {
-      exito();
-      ConsultarVentas();
-    }
+    exito();
+    getSales();
 
     try {
     } catch (error) {
@@ -524,42 +516,39 @@ const ContextApp = (props) => {
     }
   };
 
-  const BuscarVentas = (dato) => {
-    /* la busqueda se filtra por los siguientes parametros: 
-    fecha, hora, nombre cliente, cedula, y valor compra de la venta.*/
-
-    let resultados;
+  const searchSales = (dato) => {
+    let filteredSales;
 
     if (dato == "") {
-      setVentasCopia(ventas);
+      setSalesCopy(sales);
     } else {
-      resultados = ventas.filter((venta) => {
-        if (venta.fecha.includes(dato)) {
-          return venta;
-        } else if (venta.hora.toLowerCase().includes(dato.toLowerCase())) {
-          return venta;
+      filteredSales = sales.filter((sale) => {
+        if (sale.date.includes(dato)) {
+          return sale;
+        } else if (sale.hour.toLowerCase().includes(dato.toLowerCase())) {
+          return sale;
         } else if (
-          venta.datosCliente.nombre.toLowerCase().includes(dato.toLowerCase())
+          sale.customerData.name.toLowerCase().includes(dato.toLowerCase())
         ) {
-          return venta;
+          return sale;
         } else if (
-          venta.datosCliente.cedula
+          sale.customerData.cedula
             .toString()
             .toLowerCase()
             .includes(dato.toString().toLowerCase())
         ) {
-          return venta;
+          return sale;
         } else if (
-          venta.datosTransaccion.total
+          sale.transactionData.total
             .toString()
             .toLowerCase()
             .includes(dato.toString().toLowerCase())
         ) {
-          return venta;
+          return sale;
         }
       });
 
-      setVentasCopia(resultados);
+      setSalesCopy(filteredSales);
     }
   };
 
@@ -609,14 +598,14 @@ const ContextApp = (props) => {
         pizzas,
         pizzasCopy,
 
-        AgregarVenta: AgregarVenta,
-        ConsultarVentas: ConsultarVentas,
-        ventas: ventas,
-        ventasCopia: ventasCopia,
-        EditarPreventa: EditarPreventa,
-        EliminarPreventa: EliminarPreventa,
-        ConfirmarPreventa: ConfirmarPreventa,
-        BuscarVentas: BuscarVentas,
+        createSale,
+        getSales,
+        updateSale,
+        deleteSale,
+        confirmSale,
+        searchSales,
+        sales,
+        salesCopy,
       }}
     >
       {props.children}

@@ -88,7 +88,7 @@ const Pizzas = () => {
   };
 
   const handleClickOpenIngredientsModal = () => {
-    setIngredientsModal(true);
+    setIngredientsModal(!ingredientsModal);
   };
 
   const handleClickCloseIngredientsModal = () => {
@@ -142,11 +142,17 @@ const Pizzas = () => {
   };
 
   const handleSubmit = () => {
+    const pizza = {
+      _id: id,
+      name,
+      cost,
+      selectedIngredients,
+    };
     if (modeEditor) {
-      updatePizza(id, name, cost, selectedIngredients);
+      updatePizza(pizza);
       handleClickClosePizzasModal();
     } else {
-      createPizza(name, cost, selectedIngredients);
+      createPizza(pizza);
       handleClickClosePizzasModal();
     }
   };
@@ -521,7 +527,7 @@ const Pizzas = () => {
               <div className="mr-4">
                 <EliminarCerrar
                   eliminar={false}
-                  accion={handleClickCloseIngredientsModal}
+                  accion={handleClickOpenIngredientsModal}
                 />
               </div>
               <div>
