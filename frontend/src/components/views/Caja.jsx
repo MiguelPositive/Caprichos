@@ -17,6 +17,7 @@ import { TableRow } from "@mui/material";
 import { TableCell } from "@mui/material";
 import { TableBody } from "@mui/material";
 import { Fade } from "@mui/material";
+import { InputBase } from "@mui/material";
 
 //icons
 import PersonIcon from "@mui/icons-material/Person";
@@ -60,6 +61,7 @@ const Caja = () => {
 
   const [pizzasModal, setPizzasModal] = useState(false);
   const [detailsModal, setDetailsModal] = useState(false);
+  const [confirmModal, setConfirmModal] = useState(false);
 
   const [customerName, setCustomerName] = useState("");
   const [cedula, setCedula] = useState("");
@@ -72,6 +74,8 @@ const Caja = () => {
   const [subtotal, setSubTotal] = useState(0);
   const [total, setTotal] = useState(0);
   const [sendValue, setSendValue] = useState(0);
+  const [customerPay, setCustomerPay] = useState(0);
+  const [returned, setReturned] = useState(0);
 
   const [modeEditor, setModeEditor] = useState(false);
 
@@ -115,6 +119,15 @@ const Caja = () => {
     setDetailsModal(!detailsModal);
   };
 
+  const handleClickOpenConfirmModal = () => {
+    if (!printData.isSale) {
+      handleClickOpenDetailsModal();
+      setConfirmModal(!confirmModal);
+    } else {
+      alert("la preventa ya fue confirmada");
+    }
+  };
+
   const handleChangeName = (e) => {
     setCustomerName(e.target.value);
   };
@@ -141,6 +154,14 @@ const Caja = () => {
 
   const handleChangeSendValue = (e) => {
     setSendValue(parseInt(e.target.value));
+  };
+
+  const handleChangeCustomerPay = (e) => {
+    setCustomerPay(e.target.value);
+  };
+
+  const handleChangeReturned = (e) => {
+    setReturned(e.target.value);
   };
 
   const addPizza = (pizza) => {
@@ -228,14 +249,7 @@ const Caja = () => {
     isSale = false;
 
     if (modeEditor) {
-      updateSale(
-        printData._id,
-        date,
-        customerData,
-        transactionData,
-        hour,
-        isSale
-      );
+      updateSale(printData._id, customerData, transactionData);
       cleanAll();
     } else {
       customerData = {
@@ -265,12 +279,9 @@ const Caja = () => {
   };
 
   const confirm = () => {
-    if (printData.isSale) {
-      alert("ya es una venta");
-    } else {
-      handleClickOpenDetailsModal();
-      confirmSale(printData);
-    }
+    handleClickOpenConfirmModal();
+    handleClickOpenDetailsModal();
+    confirmSale(printData._id, customerPay, returned);
   };
 
   const showInvoice = () => {
@@ -426,6 +437,18 @@ const Caja = () => {
   useEffect(() => {
     updateTotal();
   }, [subtotal, sendValue]);
+
+  useEffect(() => {
+    if (!confirmModal && printData != "") {
+      handleClickOpenDetailsModal();
+    }
+  }, [confirmModal]);
+
+  useEffect(() => {
+    if (customerPay != "") {
+      setReturned(customerPay - printData.transactionData.total);
+    }
+  }, [customerPay]);
 
   return (
     <Box
@@ -897,10 +920,129 @@ const Caja = () => {
 
             <div className="row mt-4">
               <div className="col-sm-6 col-md-6 col-lg-6 detalles">
-                <ConfirmarPreventa_boton accion={confirm} />
+                <ConfirmarPreventa_boton accion={handleClickOpenConfirmModal} />
               </div>
               <div className="col-sm-6 col-md-6 col-lg-6 detalles">
                 <ImprimirFactura accion={showInvoice} />
+              </div>
+            </div>
+          </Paper>
+        </Fade>
+      </Modal>
+
+      <Modal
+        open={confirmModal}
+        className="animate__animated animate__fadeIn"
+        onClose={handleClickOpenConfirmModal}
+      >
+        <Fade in={confirmModal} timeout={500}>
+          <Paper
+            elevation={6}
+            className="container modal-sinfocus"
+            sx={{
+              width: "20rem",
+              height: "20rem",
+              position: "absolute",
+              padding: "2.5rem",
+              paddingTop: "0.3rem",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%,-50%)",
+            }}
+          >
+            <div className="row mt-3">
+              <h5 style={{ width: "100%", textAlign: "center" }}>
+                Pago de la compra
+              </h5>
+            </div>
+
+            <div className="row mt-4">
+              <div
+                className="col-sm-12 col-md-12 col-lg-12"
+                style={{
+                  height: "20%",
+                  borderRadius: "2rem",
+                  border: "1px solid gray",
+                  padding: "0.1rem 0.4rem",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center,",
+                }}
+              >
+                <h6 style={{ width: "100%", textAlign: "center" }}>
+                  Total a pagar:
+                  {printData != "" ? ` ${printData.transactionData.total}` : ""}
+                </h6>
+              </div>
+            </div>
+
+            <div className="row mt-4">
+              <div
+                className="col-sm-12 col-md-12 col-lg-12"
+                style={{
+                  height: "20%",
+                  borderRadius: "2rem",
+                  border: "1px solid gray",
+                  padding: "0.1rem 0.4rem",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center,",
+                }}
+              >
+                <div>
+                  <h6
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      textAlign: "center",
+                    }}
+                  >
+                    Pago en efectivo
+                    <InputBase
+                      type="number"
+                      size="small"
+                      onChange={handleChangeCustomerPay}
+                    />
+                  </h6>
+                </div>
+              </div>
+            </div>
+
+            <div className="row mt-4">
+              <div
+                className="col-sm-12 col-md-12 col-lg-12"
+                style={{
+                  height: "20%",
+                  borderRadius: "2rem",
+                  border: "1px solid gray",
+                  padding: "0.1rem 0.4rem",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center,",
+                }}
+              >
+                <h6 style={{ width: "100%", textAlign: "center" }}>
+                  Vueltos: {returned}
+                </h6>
+              </div>
+            </div>
+
+            <div
+              className="row mt-4"
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <div className="mr-4">
+                <EliminarCerrar
+                  eliminar={false}
+                  accion={handleClickOpenConfirmModal}
+                />
+              </div>
+              <div>
+                <Guardar accion={confirm} />
               </div>
             </div>
           </Paper>

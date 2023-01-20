@@ -55,24 +55,17 @@ const getSales = async (req, res) => {
 
 const updateSale = async (req, res) => {
   try {
-    const { _id, date, customerData, transactionData, hour, isSale } = req.body;
+    const { _id, customerData, transactionData } = req.body;
 
-    (await salesModel.find()).forEach(async (sale) => {
-      if (_id == sale._id) {
-        await salesModel.updateOne(
-          { _id },
-          {
-            $set: {
-              date: sale.date,
-              customerData,
-              transactionData,
-              hora: sale.hour,
-              isSale: sale.isSale,
-            },
-          }
-        );
+    await salesModel.updateOne(
+      { _id },
+      {
+        $set: {
+          customerData,
+          transactionData,
+        },
       }
-    });
+    );
 
     res.sendStatus(200);
   } catch (error) {
@@ -84,22 +77,19 @@ const updateSale = async (req, res) => {
 
 const confirmSale = async (req, res) => {
   try {
-    const { _id } = req.body;
+    const { _id, customerPay, returned } = req.body;
 
-    (await salesModel.find()).map(async (sale) => {
-      if (_id == sale._id) {
-        await salesModel.updateOne(
-          { _id },
-          {
-            date: sale.date,
-            customerData: sale.customerData,
-            transactionData: sale.transactionData,
-            hour: sale.hour,
-            isSale: true,
-          }
-        );
+    console.log(_id);
+    await salesModel.updateOne(
+      { _id },
+      {
+        $set: {
+          "transactionData.customerPay": customerPay,
+          "transactionData.returned": returned,
+          isSale: true,
+        },
       }
-    });
+    );
 
     res.sendStatus(200);
   } catch (error) {

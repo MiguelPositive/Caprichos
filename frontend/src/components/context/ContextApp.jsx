@@ -122,15 +122,13 @@ const ContextApp = (props) => {
   };
 
   const searchUsers = (user) => {
+    let filteredUsers = users.filter((user) => {
+      return user.user.toLowerCase().includes(user);
+    });
+
     if (user == "") {
       setUsersCopy(users);
     } else {
-      let filteredUsers = users.filter((user) => {
-        if (user.user.toLowerCase().includes(user)) {
-          return user;
-        }
-      });
-
       setUsersCopy(filteredUsers);
     }
   };
@@ -239,12 +237,8 @@ const ContextApp = (props) => {
   };
 
   const searchRaws = (element) => {
-    let filteredRaws = raws.filter((iterador) => {
-      if (
-        iterador.name.toString().toLowerCase().includes(element.toLowerCase())
-      ) {
-        return iterador;
-      }
+    let filteredRaws = raws.filter((raw) => {
+      return raw.name.toLowerCase().includes(element.toLowerCase());
     });
 
     if (element == "") {
@@ -321,11 +315,7 @@ const ContextApp = (props) => {
 
   const searchProcessed = (name) => {
     const filteredProcessed = processed.filter((processedd) => {
-      if (
-        processedd.name.toString().toLowerCase().includes(name.toLowerCase())
-      ) {
-        return processedd;
-      }
+      return processedd.name.toLowerCase().includes(name.toLowerCase());
     });
 
     if (name == "") {
@@ -403,9 +393,7 @@ const ContextApp = (props) => {
 
   const searchPizzas = (name) => {
     const filteredPizzas = pizzas.filter((iterador) => {
-      if (iterador.name.toLowerCase().includes(name.toLowerCase())) {
-        return iterador;
-      }
+      return iterador.name.toLowerCase().includes(name.toLowerCase());
     });
 
     if (name == "") {
@@ -455,22 +443,12 @@ const ContextApp = (props) => {
     }
   };
 
-  const updateSale = async (
-    _id,
-    date,
-    customerData,
-    transactionData,
-    hour,
-    isSale
-  ) => {
+  const updateSale = async (_id, customerData, transactionData) => {
     try {
       await axios.post("http://192.168.18.222:4000/update/sale", {
         _id,
-        date,
         customerData,
         transactionData,
-        hour,
-        isSale,
       });
 
       exito();
@@ -497,9 +475,11 @@ const ContextApp = (props) => {
     }
   };
 
-  const confirmSale = async ({ _id }) => {
+  const confirmSale = async (_id, customerPay, returned) => {
     await axios.post("http://192.168.18.222:4000/confirm/sale", {
       _id,
+      customerPay,
+      returned,
     });
 
     exito();
