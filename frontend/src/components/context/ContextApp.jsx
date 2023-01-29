@@ -11,32 +11,22 @@ export const store = createContext();
 const ContextApp = (props) => {
   const cookies = new Cookies();
 
-  //variable de confirmacion cookies
-
   const [confirmacion, setConfirmacion] = useState(false);
 
   //abrir menu lateral
   const [abrirMenu, setAbrirMenu] = useState(false);
 
-  //variables de usuarios
-
   const [users, setUsers] = useState([]);
   const [usersCopy, setUsersCopy] = useState([]);
 
-  //variables de productos crudos
   const [raws, setRaws] = useState([]);
   const [rawsCopy, setRawsCopy] = useState([]);
 
-  //variables de productos procesados
   const [processed, setprocessed] = useState([]);
   const [processedCopy, setprocessedCopy] = useState([]);
 
-  //variables de pizzas
-
   const [pizzas, setPizzas] = useState([]);
   const [pizzasCopy, setPizzasCopy] = useState([]);
-
-  //variables de ventas
 
   const [sales, setSales] = useState([]);
   const [salesCopy, setSalesCopy] = useState([]);
@@ -166,16 +156,18 @@ const ContextApp = (props) => {
     }
   };
 
-  const createRaw = async ({ name, totalWeight, portionWeight }) => {
+  const createRaw = async ({ name, totalCost, totalWeight, portionWeight }) => {
     try {
       await axios.post(
         "http://192.168.18.222:4000/create/raw",
 
         {
           name,
+          totalCost,
           totalWeight,
           portionWeight,
           portionsQuantity: totalWeight / portionWeight,
+          portionCost: totalCost / (totalWeight / portionWeight),
         }
       );
       exito();
@@ -202,14 +194,22 @@ const ContextApp = (props) => {
     }
   };
 
-  const updateRaw = async ({ _id, name, totalWeight, portionWeight }) => {
+  const updateRaw = async ({
+    _id,
+    totalCost,
+    name,
+    totalWeight,
+    portionWeight,
+  }) => {
     try {
       await axios.post("http://192.168.18.222:4000/update/raw", {
         _id,
         name,
+        totalCost,
         totalWeight,
         portionWeight,
         portionsQuantity: totalWeight / portionWeight,
+        portionCost: totalCost / (totalWeight / portionWeight),
       });
 
       exito();
@@ -248,12 +248,18 @@ const ContextApp = (props) => {
     }
   };
 
-  const createProcessed = async ({ name, quantity, ingredients }) => {
+  const createProcessed = async ({
+    name,
+    quantity,
+    ingredients,
+    portionCost,
+  }) => {
     try {
       await axios.post("http://192.168.18.222:4000/create/processed", {
         name,
         quantity,
         ingredients,
+        portionCost,
       });
 
       exito();
@@ -280,13 +286,20 @@ const ContextApp = (props) => {
     }
   };
 
-  const updateProcessed = async ({ _id, name, quantity, ingredients }) => {
+  const updateProcessed = async ({
+    _id,
+    name,
+    quantity,
+    ingredients,
+    portionCost,
+  }) => {
     try {
       axios.post("http://192.168.18.222:4000/update/processed", {
         _id,
         name,
         quantity,
         ingredients,
+        portionCost,
       });
 
       exito();

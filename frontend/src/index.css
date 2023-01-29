@@ -2,5 +2,16 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+@font-face {
   font-family: "Roboto";
+  src: url("../src/assets/fonts/Roboto-Light.ttf");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Roboto-Bold";
+  src: url("../src/assets/fonts/Roboto-Bold.ttf");
+  font-display: swap;
 }

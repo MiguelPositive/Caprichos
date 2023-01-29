@@ -141,7 +141,7 @@ const Lista = () => {
             <ListItem
               button
               onClick={() => {
-                handleChangeCerrarSubMenu();
+                CerrarSubMenu();
                 handleOpenMenu();
               }}
             >
@@ -159,7 +159,7 @@ const Lista = () => {
             <ListItem
               button
               onClick={() => {
-                handleChangeCerrarSubMenu();
+                CerrarSubMenu();
                 handleOpenMenu();
               }}
             >

@@ -2,13 +2,22 @@ const { rawsModel } = require("../models/CrudosModelo.js");
 
 const createRaw = async (req, res) => {
   try {
-    let { name, totalWeight, portionWeight, portionsQuantity } = req.body;
-
-    const newRaw = await rawsModel({
+    const {
       name,
+      totalCost,
       totalWeight,
       portionWeight,
       portionsQuantity,
+      portionCost,
+    } = req.body;
+
+    const newRaw = await rawsModel({
+      name,
+      totalCost,
+      totalWeight,
+      portionWeight,
+      portionsQuantity,
+      portionCost,
     });
 
     await newRaw.save();
@@ -33,17 +42,26 @@ const getRaws = async (req, res) => {
 
 const updateRaw = async (req, res) => {
   try {
-    const { _id, name, totalWeight, portionWeight, portionsQuantity } =
-      req.body;
+    const {
+      _id,
+      name,
+      totalCost,
+      totalWeight,
+      portionWeight,
+      portionsQuantity,
+      portionCost,
+    } = req.body;
     await rawsModel.updateOne(
       { _id },
 
       {
         $set: {
           name,
+          totalCost,
           totalWeight,
           portionWeight,
           portionsQuantity,
+          portionCost,
         },
       }
     );

@@ -14,6 +14,7 @@ import "../../styles/Agregar.css";
 
 const BotonAgregarProducto = styled(Paper)({
   transition: "0.5s",
+  fontFamily: "Roboto-Bold",
   borderRadius: "20rem",
   width: "10rem",
   height: "2.5rem",
@@ -45,9 +46,7 @@ const AgregarProducto = ({ titulo, accion }) => {
         }}
         onClick={accion}
       >
-        <div>
-          <b>{titulo}</b>
-        </div>
+        <div>{titulo}</div>
 
         <div>
           <MdPostAdd />

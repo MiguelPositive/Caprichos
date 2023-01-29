@@ -3,7 +3,7 @@ const { rawsModel } = require("../models/CrudosModelo.js");
 
 const createProcessed = async (req, res) => {
   try {
-    const { name, quantity, ingredients } = req.body;
+    const { name, quantity, ingredients, portionCost } = req.body;
 
     (await rawsModel.find()).map((raw) => {
       //
@@ -35,6 +35,7 @@ const createProcessed = async (req, res) => {
       name,
       quantity,
       ingredients,
+      portionCost,
     });
 
     newProcessed.save();
@@ -61,11 +62,11 @@ const getProcessed = async (req, res) => {
 
 const updateProcessed = async (req, res) => {
   try {
-    const { _id, name, quantity, ingredients } = req.body;
+    const { _id, name, quantity, ingredients, portionCost } = req.body;
 
     await processedModel.updateOne(
       { _id },
-      { $set: { name, quantity, ingredients } }
+      { $set: { name, quantity, ingredients, portionCost } }
     );
 
     res.sendStatus(200);

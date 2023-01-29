@@ -6,13 +6,18 @@ const pizzasSchema = mongoose.Schema({
     trim: false,
   },
 
-  cost: {
+  ingredients: {
+    type: Array,
+  },
+
+  productionCost: {
     type: Number,
     trim: false,
   },
 
-  ingredients: {
-    type: Array,
+  saleValue: {
+    type: Number,
+    trim: false,
   },
 });
 

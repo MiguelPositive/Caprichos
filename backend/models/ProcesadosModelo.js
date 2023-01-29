@@ -14,6 +14,11 @@ const processedSchema = mongoose.Schema({
   ingredients: {
     type: Array,
   },
+
+  portionCost: {
+    type: "Number",
+    trim: true,
+  },
 });
 
 const processedModel = mongoose.model("procesados", processedSchema);

@@ -2,12 +2,13 @@ const { pizzasModel } = require("../models/PizzasModelo.js");
 
 const createPizza = async (req, res) => {
   try {
-    const { name, cost, ingredients } = req.body;
+    const { name, ingredients, productionCost, saleValue } = req.body;
 
     const newPizza = await pizzasModel({
       name,
-      cost,
       ingredients,
+      productionCost,
+      saleValue,
     });
 
     newPizza.save();

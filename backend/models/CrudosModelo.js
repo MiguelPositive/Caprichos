@@ -6,6 +6,11 @@ const rawsSchema = mongoose.Schema({
     trim: false,
   },
 
+  totalCost: {
+    type: Number,
+    trim: true,
+  },
+
   totalWeight: {
     type: Number,
     trim: true,
@@ -17,6 +22,11 @@ const rawsSchema = mongoose.Schema({
   },
 
   portionsQuantity: {
+    type: Number,
+    trim: true,
+  },
+
+  portionCost: {
     type: Number,
     trim: true,
   },

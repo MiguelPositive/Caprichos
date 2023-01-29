@@ -54,23 +54,27 @@ const Procesados = () => {
 
   const [id, setId] = useState("");
   const [name, setName] = useState("");
-  const [quantity, setQuantity] = useState(null);
+  const [quantity, setQuantity] = useState(1);
+
+  const [processedPortionCost, setProcessedPortionCost] = useState(0);
 
   const [modeEditor, setModeEditor] = useState(false);
 
   const [selectorValue, setSelectorValue] = useState("");
   const [rawPortions, setRawPortions] = useState(null);
   const [selectedRaws, setSelectedRaws] = useState([]);
+  let rawPortionCost;
 
   const [idColapse, setIdColapse] = useState("");
 
-  const Clean = () => {
+  const clean = () => {
     setIdColapse("");
     setId("");
     setName("");
     setQuantity(null);
     setSelectedRaws([]);
     setModeEditor(false);
+    setProcessedPortionCost(0);
   };
 
   const handleClickOpenProcessedModal = () => {
@@ -92,14 +96,14 @@ const Procesados = () => {
   const handleClickCloseProcessedModal = () => {
     handleClickOpenProcessedModal();
     setTimeout(() => {
-      Clean();
+      clean();
     }, 350);
   };
 
   const handleClickCloseIngredientsdModal = () => {
     handleClickOpenIngredientsModal();
     setTimeout(() => {
-      Clean();
+      clean();
     }, 350);
   };
 
@@ -119,42 +123,66 @@ const Procesados = () => {
     setRawPortions(parseInt(e.target.value));
   };
 
+  const calculateProcessedPortionCost = () => {
+    rawPortionCost = raws.filter((raw) => {
+      return raw.name == selectorValue;
+    });
+
+    setProcessedPortionCost(
+      processedPortionCost +
+        rawPortionCost[0].portionCost * rawPortions * quantity
+    );
+  };
+
+  const recalculateProcessedPortionCost = () => {
+    setProcessedPortionCost(
+      selectedRaws.reduce((total, CurrentValue) => {
+        return total + CurrentValue.portionCost;
+      }, 0)
+    );
+  };
+
   const addRaw = () => {
+    calculateProcessedPortionCost();
+
     const newRaw = {
       name: selectorValue,
       quantity: rawPortions,
+      portionCost: rawPortionCost[0].portionCost,
     };
 
     setSelectedRaws([...selectedRaws, newRaw]);
   };
 
   const update = (processed) => {
-    const { _id, name, quantity, ingredients } = processed;
+    const { _id, name, quantity, ingredients, portionCost } = processed;
 
     setModeEditor(true);
     setId(_id);
     setName(name);
     setQuantity(quantity);
     setSelectedRaws(ingredients);
+    setProcessedPortionCost(portionCost);
     handleClickOpenProcessedModal();
   };
 
   const handleSubmit = () => {
     const processed = {
       _id: id,
-      name: name,
-      quantity: quantity,
+      name,
+      quantity,
       ingredients: selectedRaws,
+      portionCost: processedPortionCost * quantity,
     };
 
     if (modeEditor) {
       updateProcessed(processed);
       handleClickOpenProcessedModal();
-      Clean();
+      clean();
     } else {
       createProcessed(processed);
       handleClickOpenProcessedModal();
-      Clean();
+      clean();
     }
   };
 
@@ -172,6 +200,11 @@ const Procesados = () => {
     getRaws();
     getProcessed();
   }, []);
+
+  useEffect(() => {
+    recalculateProcessedPortionCost();
+  }, [quantity]);
+
   return (
     <>
       <div
@@ -217,6 +250,10 @@ const Procesados = () => {
                       </TableCell>
                       <TableCell className="col-4" align="center">
                         Cantidad
+                      </TableCell>
+
+                      <TableCell className="col-4" align="center">
+                        Costo por porcion
                       </TableCell>
                       <TableCell className="col-4" align="center">
                         Acciones
@@ -295,6 +332,10 @@ const Procesados = () => {
                         </TableCell>
                         <TableCell className="col-4" align="center">
                           {iterador.quantity}
+                        </TableCell>
+
+                        <TableCell className="col-4" align="center">
+                          {iterador.portionCost}
                         </TableCell>
 
                         <TableCell className="col-4">

@@ -37,6 +37,7 @@ const Crudos = () => {
 
   const [id, setId] = useState("");
   const [name, setName] = useState("");
+  const [totalCost, setTotalCost] = useState("");
   const [totalWeight, setTotalWeight] = useState(null);
   const [portionWeight, setPortionWeight] = useState(null);
 
@@ -44,8 +45,9 @@ const Crudos = () => {
 
   const [modeEditor, setModeEditor] = useState(false);
 
-  const Clean = () => {
+  const clean = () => {
     setName("");
+    setTotalCost(null);
     setTotalWeight(null);
     setPortionWeight(null);
     setModeEditor(false);
@@ -53,6 +55,10 @@ const Crudos = () => {
 
   const handleChangeName = (e) => {
     setName(e.target.value);
+  };
+
+  const handleChangeTotalCost = (e) => {
+    setTotalCost(e.target.value);
   };
 
   const handleChangeTotalWeight = (e) => {
@@ -70,15 +76,17 @@ const Crudos = () => {
   const handleClickClose = () => {
     handleClickOpenModal();
     setTimeout(() => {
-      Clean();
+      clean();
     }, 350);
   };
 
   const update = (raw) => {
-    const { _id, name, totalWeight, portionWeight } = raw;
     setModeEditor(true);
+
+    const { _id, name, totalCost, totalWeight, portionWeight } = raw;
     setId(_id);
     setName(name);
+    setTotalCost(totalCost);
     setTotalWeight(totalWeight);
     setPortionWeight(portionWeight);
     handleClickOpenModal();
@@ -88,6 +96,7 @@ const Crudos = () => {
     const raw = {
       _id: id,
       name,
+      totalCost,
       totalWeight,
       portionWeight,
     };
@@ -95,12 +104,12 @@ const Crudos = () => {
     if (modeEditor) {
       handleClickOpenModal();
       updateRaw(raw);
-      Clean();
+      clean();
     } else {
       handleClickOpenModal();
       createRaw(raw);
 
-      Clean();
+      clean();
     }
   };
 
@@ -150,6 +159,11 @@ const Crudos = () => {
                     <TableCell align="center">
                       <b>Nombre</b>
                     </TableCell>
+
+                    <TableCell align="center">
+                      <b>Costo del Producto</b>
+                    </TableCell>
+
                     <TableCell align="center">
                       <b>Peso [gramos]</b>
                     </TableCell>
@@ -159,6 +173,11 @@ const Crudos = () => {
                     <TableCell align="center">
                       <b>Cantidad Porciones</b>
                     </TableCell>
+
+                    <TableCell align="center">
+                      <b>Costo por porcion</b>
+                    </TableCell>
+
                     <TableCell align="center">
                       <b>Acciones</b>
                     </TableCell>
@@ -170,6 +189,11 @@ const Crudos = () => {
                       <TableCell component="th" align="center">
                         {raw.name}
                       </TableCell>
+
+                      <TableCell component="th" align="center">
+                        {raw.totalCost}
+                      </TableCell>
+
                       <TableCell component="th" align="center">
                         {raw.totalWeight}
                       </TableCell>
@@ -179,6 +203,11 @@ const Crudos = () => {
                       <TableCell component="th" align="center">
                         {raw.portionsQuantity}
                       </TableCell>
+
+                      <TableCell component="th" align="center">
+                        {raw.portionCost}
+                      </TableCell>
+
                       <TableCell component="th" align="center">
                         <AcccionesTabla
                           funcionEditar={() => {
@@ -237,6 +266,24 @@ const Crudos = () => {
                   startAdornment: (
                     <InputAdornment position="start">
                       <FaAppleAlt />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </div>
+
+            <div className="row mt-3">
+              <TextField
+                placeholder="Costo del producto"
+                variant="standard"
+                fullWidth
+                type={"number"}
+                onChange={handleChangeTotalCost}
+                value={totalCost || ""}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <NumbersIcon />
                     </InputAdornment>
                   ),
                 }}
